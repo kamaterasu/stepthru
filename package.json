@@ -1,0 +1,42 @@
+{
+  "name": "stepthru",
+  "version": "0.0.0",
+  "description": "Step-through visualizations of algorithms, driven by tracing real code.",
+  "main": "./dist/index.js",
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit",
+    "play": "vite playground",
+    "licenses": "license-checker --production --onlyAllow \"MIT;ISC;BSD-2-Clause;BSD-3-Clause;Apache-2.0\" --excludePackages stepthru@0.0.0"
+  },
+  "keywords": [
+    "algorithm",
+    "visualization",
+    "svg",
+    "explorable"
+  ],
+  "license": "MIT",
+  "devDependencies": {
+    "license-checker": "^25.0.1",
+    "typescript": "^7.0.2",
+    "vite": "^8.3.5",
+    "vitest": "^5.0.5"
+  },
+  "type": "module",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "author": "Tuguldur Bayartsolmon",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kamaterasu/stepthru.git"
+  }
+}
