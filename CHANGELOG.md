@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 0.2.0 (2026-10-30)
 
 - New: `t.at(line)` and `render(t, el, { code })` show the code next to the figure and highlight the line each step came from.
 - New: `t.watch({ i, j })` shows variables with each step.
