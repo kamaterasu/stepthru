@@ -7,6 +7,7 @@
   --stepthru-done: #1a7f37;
 
   display: grid;
+  align-content: start;
   gap: 0.5rem;
   color: var(--stepthru-fg);
   background: var(--stepthru-bg);
@@ -48,6 +49,7 @@
   fill: color-mix(in srgb, var(--stepthru-done) 25%, var(--stepthru-bg));
   stroke: var(--stepthru-done);
 }
+.stepthru-figure line[data-state="marked"] { stroke-width: 3; }
 .stepthru-figure [data-dim] { opacity: 0.35; }
 .stepthru-figure .stepthru-range {
   fill: none;

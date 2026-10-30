@@ -59,9 +59,9 @@ while (lo <= hi) {
 render(t, el);
 ```
 
-### 3. Graph BFS (DFS and Dijkstra follow)
+### 3. Graph BFS and DFS
 
-Tests: graph view, node and edge states, queue view.
+Tests: graph view, node and edge states, queue and stack views. Dijkstra needs weighted edges and comes after v0.1.
 
 ```ts
 const t = traceGraph({ nodes: ["A", "B", "C", "D", "E"], edges: [["A", "B"], ["A", "C"], ["B", "D"], ["C", "E"]] });
@@ -116,4 +116,5 @@ render(t, el);
 - **Phase 2:** steps jump with no animation. Add transitions only when a target needs them.
 - **Phase 3:** one tracer per structure (`traceArray`, later `traceGraph`, `traceTree`) in place of `trace(array(...))`. Each tracer carries its view, so `render(t, el)` needs no view argument.
 - **Phase 3:** the target algorithms live in `examples/`. The playground shows them and `test/examples/targets.test.ts` checks they end in the right state.
+- **Phase 4:** graphs are undirected and unweighted. Nodes sit in rows by distance from the first node. `shift`, `pop` and `focus` set the current node; `visit` only marks a node visited.
 - **Phase 2:** every step stores a full snapshot (`structuredClone`). Switch to diffs only if long traces get slow.
