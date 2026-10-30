@@ -7,7 +7,7 @@
     "build": "tsc -p tsconfig.build.json && cp src/styles/theme.css dist/",
     "test": "vitest run",
     "typecheck": "tsc --noEmit",
-    "play": "vite playground",
+    "play": "vite --open /playground/",
     "licenses": "license-checker --production --onlyAllow \"MIT;ISC;BSD-2-Clause;BSD-3-Clause;Apache-2.0\" --excludePackages \"$npm_package_name@$npm_package_version\"",
     "site": "vite build playground --base /stepthru/ --outDir ../site --emptyOutDir",
     "prepublishOnly": "npm run typecheck && npm test && npm run build && npm run smoke",

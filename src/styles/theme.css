@@ -1,20 +1,21 @@
 /* Defaults sit on :where(:root), which has zero specificity, so a host page wins
    by setting any --stepthru-* variable on :root, a parent or .stepthru itself. */
 :where(:root) {
-  --stepthru-fg: #1f2328;
+  /* Brand palette (BRAND.md). Every pair meets WCAG AA in both themes. */
+  --stepthru-fg: #1b1a24;
   --stepthru-bg: #ffffff;
-  --stepthru-muted: #8c959f;
-  --stepthru-accent: #0969da;
-  --stepthru-done: #1a7f37;
+  --stepthru-muted: #767389;
+  --stepthru-accent: #5b3fd9;
+  --stepthru-done: #1d7a4f;
 }
 
 @media (prefers-color-scheme: dark) {
   :where(:root) {
-    --stepthru-fg: #e6edf3;
-    --stepthru-bg: #0d1117;
-    --stepthru-muted: #6e7681;
-    --stepthru-accent: #4493f8;
-    --stepthru-done: #3fb950;
+    --stepthru-fg: #ecebf5;
+    --stepthru-bg: #13121a;
+    --stepthru-muted: #8e8aa6;
+    --stepthru-accent: #a594ff;
+    --stepthru-done: #4cc38a;
   }
 }
 
@@ -38,6 +39,7 @@
   max-width: 100%;
   height: auto;
   margin-inline: auto;
+  overflow: visible; /* strokes on edge shapes extend past the viewBox */
 }
 
 /* Views mark shapes with data-state. Fills stay light so values on top stay readable. */

@@ -5,21 +5,30 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="description" content="Step-through algorithm figures: trace your real code, get a playable SVG with captions." />
     <title>stepthru</title>
+    <link rel="icon" type="image/svg+xml" href="../brand/logo.svg" />
+    <meta property="og:title" content="stepthru" />
+    <meta property="og:description" content="Trace the real code. Step through what it does." />
+    <meta property="og:url" content="https://kamaterasu.github.io/stepthru/" />
+    <meta property="og:image" content="https://raw.githubusercontent.com/kamaterasu/stepthru/main/brand/social.png" />
+    <meta property="og:image:alt" content="The stepthru logo and an array figure comparing 8 and 1" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#13121a" media="(prefers-color-scheme: dark)" />
     <style>
       :root {
         color-scheme: light dark;
-        --ink: #1f2328;
-        --page: #ffffff;
-        --soft: #f6f8fa;
-        --line: #d0d7de;
+        /* Page colors come from the brand tokens in theme.css; see BRAND.md */
+        --ink: var(--stepthru-fg);
+        --page: var(--stepthru-bg);
+        --soft: color-mix(in srgb, var(--stepthru-muted) 8%, var(--stepthru-bg));
+        --line: color-mix(in srgb, var(--stepthru-muted) 30%, var(--stepthru-bg));
         font: 16px/1.6 system-ui, sans-serif;
-      }
-      @media (prefers-color-scheme: dark) {
-        :root { --ink: #e6edf3; --page: #0d1117; --soft: #161b22; --line: #30363d; }
       }
       body { margin: 0; color: var(--ink); background: var(--page); }
       main { max-width: 46rem; margin: 0 auto; padding: 2rem 1rem 4rem; }
-      h1 { margin-bottom: 0; }
+      h1 { display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0; font-size: 2.25rem; letter-spacing: -0.02em; }
+      h1 img { width: 2.25rem; height: 2.25rem; }
+      .tagline { margin-top: 0.25rem; font-size: 1.125rem; }
       h2 { margin-top: 3rem; }
       a { color: var(--stepthru-accent); }
       pre, code { font: 0.875rem/1.5 ui-monospace, monospace; }
@@ -30,7 +39,8 @@
   </head>
   <body>
     <main>
-      <h1>stepthru</h1>
+      <h1><img src="../brand/logo.svg" alt="" />stepthru</h1>
+      <p class="tagline">Trace the real code. Step through what it does.</p>
       <p>Write the real algorithm, call tracer hooks inside it, and get a figure readers can play, pause and scrub, with a caption for every step.</p>
       <p><a href="https://github.com/kamaterasu/stepthru">GitHub</a> · <a href="https://www.npmjs.com/package/stepthru">npm</a> · MIT</p>
       <pre><code>npm install stepthru</code></pre>

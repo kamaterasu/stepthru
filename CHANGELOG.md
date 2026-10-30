@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+- Brand: logo, palette, guidelines (`BRAND.md`) and a social preview image.
+- The default theme uses the brand palette in place of GitHub's colors. Every pair meets WCAG AA. Sites that set `--stepthru-*` are not affected.
+- Fix: the outer stroke of cells at the edge of a figure was cut off.
+
 ## 0.1.1 (2026-10-30)
 
 - Fix: on narrow phones the controls row could push the page wider than the screen, and the step counter wrapped. The slider now shrinks to fit.

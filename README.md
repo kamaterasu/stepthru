@@ -1,4 +1,6 @@
-# stepthru
+# <img src="https://raw.githubusercontent.com/kamaterasu/stepthru/main/brand/logo.svg" width="32" height="32" alt=""> stepthru
+
+**Trace the real code. Step through what it does.**
 
 Step-through algorithm figures. Write the real algorithm, call tracer hooks inside it, and stepthru records each step and plays it back as an SVG figure that readers can play, pause and scrub, with a caption for every step.
 
@@ -162,6 +164,7 @@ src/
 test/          mirrors src/
 examples/      the algorithms on the demo page, also run by the acceptance tests
 playground/    the demo page (npm run play, deployed to GitHub Pages)
+brand/         logo, one-color logo and social preview image (see BRAND.md)
 ```
 
 ## Releasing
