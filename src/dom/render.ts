@@ -1,5 +1,5 @@
-import { createPlayer, type Player, type PlayerState } from "../core/player";
-import type { Trace, View } from "../core/trace";
+import { createPlayer, type Player, type PlayerState } from "../core/player.js";
+import type { Trace, View } from "../core/trace.js";
 
 export interface RenderOptions<S> {
   /** Overrides the trace's own view. Required when the trace has none. */

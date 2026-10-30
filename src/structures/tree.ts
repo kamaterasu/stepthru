@@ -1,5 +1,5 @@
-import { createTrace, type Trace } from "../core/trace";
-import { edgeLine, frame, NODE_R, nodeCircle, type Point } from "./svg";
+import { createTrace, type Trace } from "../core/trace.js";
+import { edgeLine, frame, NODE_R, nodeCircle, type Point } from "./svg.js";
 
 export type Side = "left" | "right";
 

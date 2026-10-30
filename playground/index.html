@@ -3,10 +3,40 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>stepthru playground</title>
+    <meta name="description" content="Step-through algorithm figures: trace your real code, get a playable SVG with captions." />
+    <title>stepthru</title>
+    <style>
+      :root {
+        color-scheme: light dark;
+        --ink: #1f2328;
+        --page: #ffffff;
+        --soft: #f6f8fa;
+        --line: #d0d7de;
+        font: 16px/1.6 system-ui, sans-serif;
+      }
+      @media (prefers-color-scheme: dark) {
+        :root { --ink: #e6edf3; --page: #0d1117; --soft: #161b22; --line: #30363d; }
+      }
+      body { margin: 0; color: var(--ink); background: var(--page); }
+      main { max-width: 46rem; margin: 0 auto; padding: 2rem 1rem 4rem; }
+      h1 { margin-bottom: 0; }
+      h2 { margin-top: 3rem; }
+      a { color: var(--stepthru-accent); }
+      pre, code { font: 0.875rem/1.5 ui-monospace, monospace; }
+      pre { overflow-x: auto; padding: 1rem; background: var(--soft); border: 1px solid var(--line); border-radius: 6px; }
+      details { margin-top: 0.75rem; }
+      summary { cursor: pointer; }
+    </style>
   </head>
   <body>
-    <main id="app" style="max-width: 40rem; margin: 2rem auto"></main>
+    <main>
+      <h1>stepthru</h1>
+      <p>Write the real algorithm, call tracer hooks inside it, and get a figure readers can play, pause and scrub, with a caption for every step.</p>
+      <p><a href="https://github.com/kamaterasu/stepthru">GitHub</a> · <a href="https://www.npmjs.com/package/stepthru">npm</a> · MIT</p>
+      <pre><code>npm install stepthru</code></pre>
+      <p>Click a figure, then use ← →, space, Home and End, or the buttons. Each figure's source is under it.</p>
+      <div id="app"></div>
+    </main>
     <script type="module" src="./main.ts"></script>
   </body>
 </html>

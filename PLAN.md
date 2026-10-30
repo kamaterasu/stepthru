@@ -115,6 +115,8 @@ render(t, el);
 | 6 | Real-world test | One tuugu.dev post uses stepthru with no workarounds. |
 | 7 | Publish | Docs page, npm `0.1.0`. |
 
+Phases 0 to 6 are done. Phase 7: README and demo page done, npm `0.1.0` published by the author.
+
 ## Open questions
 
 - **Graph layout:** write a simple layout, or use `d3-force` (ISC)? Decide in phase 4.
@@ -130,3 +132,12 @@ render(t, el);
 - **Phase 5:** trees are binary with numeric ids. The draft `t.insert(x, chooseSide)` hid the algorithm inside the tracer, so it became `compare`, `child`, `addRoot` and `addChild`. Nodes sit in in-order columns, so subtrees never overlap, but nodes shift sideways as the tree grows.
 - **Phase 5:** node circles, edge lines, the box row under a figure and the outer `<svg>` frame are shared in `src/structures/svg.ts`.
 - **Phase 2:** every step stores a full snapshot (`structuredClone`). Switch to diffs only if long traces get slow.
+
+## After v0.1
+
+Ideas, in no order. Each waits for a real post that needs it.
+
+- Weighted and directed graphs, for Dijkstra.
+- Transitions between steps.
+- String and object values in arrays.
+- A real graph layout for graphs that are not tree-like.

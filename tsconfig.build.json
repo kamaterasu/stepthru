@@ -1,5 +1,10 @@
 {
   "extends": "./tsconfig.json",
-  "compilerOptions": { "rootDir": "src" },
+  "compilerOptions": {
+    "rootDir": "src",
+    // NodeNext makes a missing .js extension a build error, so dist works in Node as well as bundlers.
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext"
+  },
   "include": ["src"]
 }

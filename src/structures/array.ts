@@ -1,5 +1,5 @@
-import { createTrace, type Trace } from "../core/trace";
-import { escape, frame } from "./svg";
+import { createTrace, type Trace } from "../core/trace.js";
+import { escape, frame } from "./svg.js";
 
 export interface ArrayState {
   values: number[];

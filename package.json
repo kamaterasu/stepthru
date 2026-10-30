@@ -1,20 +1,28 @@
 {
   "name": "stepthru",
-  "version": "0.0.0",
-  "description": "Step-through visualizations of algorithms, driven by tracing real code.",
+  "version": "0.1.0",
+  "description": "Step-through algorithm figures: trace your real code, get a playable SVG with captions.",
   "main": "./dist/index.js",
   "scripts": {
     "build": "tsc -p tsconfig.build.json && cp src/styles/theme.css dist/",
     "test": "vitest run",
     "typecheck": "tsc --noEmit",
     "play": "vite playground",
-    "licenses": "license-checker --production --onlyAllow \"MIT;ISC;BSD-2-Clause;BSD-3-Clause;Apache-2.0\" --excludePackages stepthru@0.0.0"
+    "licenses": "license-checker --production --onlyAllow \"MIT;ISC;BSD-2-Clause;BSD-3-Clause;Apache-2.0\" --excludePackages \"$npm_package_name@$npm_package_version\"",
+    "site": "vite build playground --base /stepthru/ --outDir ../site --emptyOutDir",
+    "prepublishOnly": "npm run typecheck && npm test && npm run build && npm run smoke",
+    "smoke": "node --input-type=module -e \"const { traceArray } = await import('stepthru'); const t = traceArray([2, 1]); t.swap(0, 1); if (!t.view(t.steps[1].state).startsWith('<svg')) throw new Error('smoke test failed'); console.log('smoke ok');\""
   },
   "keywords": [
     "algorithm",
     "visualization",
+    "step-through",
     "svg",
-    "explorable"
+    "explorable",
+    "education",
+    "sorting",
+    "graph",
+    "tree"
   ],
   "license": "MIT",
   "devDependencies": {
@@ -41,5 +49,12 @@
   "repository": {
     "type": "git",
     "url": "git+https://github.com/kamaterasu/stepthru.git"
-  }
+  },
+  "homepage": "https://kamaterasu.github.io/stepthru/",
+  "bugs": {
+    "url": "https://github.com/kamaterasu/stepthru/issues"
+  },
+  "sideEffects": [
+    "*.css"
+  ]
 }
