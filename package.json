@@ -4,7 +4,7 @@
   "description": "Step-through visualizations of algorithms, driven by tracing real code.",
   "main": "./dist/index.js",
   "scripts": {
-    "build": "tsc -p tsconfig.build.json",
+    "build": "tsc -p tsconfig.build.json && cp src/theme.css dist/",
     "test": "vitest run",
     "typecheck": "tsc --noEmit",
     "play": "vite playground",
@@ -18,6 +18,7 @@
   ],
   "license": "MIT",
   "devDependencies": {
+    "happy-dom": "^21.0.4",
     "license-checker": "^25.0.1",
     "typescript": "^7.0.2",
     "vite": "^8.3.5",
@@ -29,7 +30,8 @@
     ".": {
       "types": "./dist/index.d.ts",
       "import": "./dist/index.js"
-    }
+    },
+    "./theme.css": "./dist/theme.css"
   },
   "files": [
     "dist"

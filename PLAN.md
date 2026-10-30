@@ -109,6 +109,9 @@ render(t, el);
 ## Open questions
 
 - **Graph layout:** write a simple layout, or use `d3-force` (ISC)? Decide in phase 4.
-- **Transitions:** animate between steps, or jump straight to each step? Decide in phase 2.
-- **Snapshots or diffs:** full snapshots are simpler, diffs use less memory on long traces. Start with snapshots.
 - **npm name:** publish an empty `0.0.0` to reserve `stepthru`.
+
+## Decisions
+
+- **Phase 2:** steps jump with no animation. Add transitions only when a target needs them.
+- **Phase 2:** every step stores a full snapshot (`structuredClone`). Switch to diffs only if long traces get slow.
