@@ -1,0 +1,31 @@
+name: release
+on:
+  push:
+    tags: ["v*"]
+permissions:
+  contents: write # create the GitHub release
+  id-token: write # npm trusted publishing: no npm token stored anywhere
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24 # ships npm 11, which trusted publishing needs
+          registry-url: https://registry.npmjs.org
+          cache: npm
+      - run: npm ci
+      - name: Tag matches package.json
+        run: test "v$(node -p 'require("./package.json").version')" = "$GITHUB_REF_NAME"
+      - name: Release notes from CHANGELOG.md
+        run: |
+          awk -v head="## ${GITHUB_REF_NAME#v} " 'index($0, head) == 1 { f = 1; next } /^## / { f = 0 } f' CHANGELOG.md > notes.md
+          test -s notes.md || { echo "CHANGELOG.md has no '## ${GITHUB_REF_NAME#v} (date)' section"; exit 1; }
+      - run: npm run licenses
+      # prepublishOnly runs typecheck, tests, build and the smoke test first.
+      - run: npm publish
+      - name: GitHub release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release create "$GITHUB_REF_NAME" --title "stepthru ${GITHUB_REF_NAME#v}" --notes-file notes.md

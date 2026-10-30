@@ -160,6 +160,14 @@ examples/      the algorithms on the demo page, also run by the acceptance tests
 playground/    the demo page (npm run play, deployed to GitHub Pages)
 ```
 
+## Releasing
+
+Pushing a `v*` tag runs `.github/workflows/release.yml`: it checks the tag matches `package.json`, publishes to npm with trusted publishing (no npm token), and creates the GitHub release from `CHANGELOG.md`.
+
+1. Add a `## x.y.z (YYYY-MM-DD)` section at the top of `CHANGELOG.md` and commit it.
+2. `npm version x.y.z` (or `patch`, `minor`, `major`). It bumps `package.json`, commits and tags `vx.y.z`.
+3. `git push --follow-tags`
+
 See [PLAN.md](PLAN.md) for scope, decisions and what comes next.
 
 ## License
