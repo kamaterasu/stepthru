@@ -7,7 +7,12 @@ export interface Step<S> {
 export interface Trace<S> {
   readonly steps: readonly Step<S>[];
   record(op: string, state: S, caption?: string): void;
+  /** How to draw a state. Structure tracers set this so `render` needs no view. */
+  readonly view?: View<S>;
 }
+
+/** Turns one state into SVG markup. Views must escape any text they put in the markup. */
+export type View<S> = (state: S) => string;
 
 /** Records a snapshot of `state` at every step. The first step is the initial state. */
 export function createTrace<S>(initial: S, caption = ""): Trace<S> {

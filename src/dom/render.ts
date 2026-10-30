@@ -1,10 +1,9 @@
 import { createPlayer, type Player, type PlayerState } from "../core/player";
-import type { Trace } from "../core/trace";
+import type { Trace, View } from "../core/trace";
 
-/** Turns one state into SVG markup. Views must escape any text they put in the markup. */
-export type View<S> = (state: S) => string;
-
-export interface RenderOptions {
+export interface RenderOptions<S> {
+  /** Overrides the trace's own view. Required when the trace has none. */
+  view?: View<S>;
   intervalMs?: number;
 }
 
@@ -40,9 +39,9 @@ function template(last: number): string {
 export function render<S>(
   trace: Trace<S>,
   el: HTMLElement,
-  view: View<S>,
-  { intervalMs }: RenderOptions = {},
+  { view = trace.view, intervalMs }: RenderOptions<S> = {},
 ): Player {
+  if (!view) throw new TypeError("render needs a view: pass options.view or use a structure tracer");
   const { steps } = trace;
   const last = steps.length - 1;
   el.classList.add("stepthru");

@@ -18,7 +18,17 @@ describe("render", () => {
     const t = createTrace(10, "start");
     t.record("add", 20, "add ten");
     t.record("add", 30, "add ten again");
-    render(t, el, view);
+    render(t, el, { view });
+  });
+
+  test("uses the trace's own view when no view is passed", () => {
+    const own = document.createElement("div");
+    render({ ...createTrace(7), view }, own);
+    expect(own.querySelector(".stepthru-figure")!.textContent).toBe("7");
+  });
+
+  test("throws when there is no view at all", () => {
+    expect(() => render(createTrace(1), document.createElement("div"))).toThrow(TypeError);
   });
 
   test("shows the first step with its caption and counter", () => {

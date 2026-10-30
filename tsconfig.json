@@ -9,5 +9,5 @@
     "outDir": "dist",
     "skipLibCheck": true
   },
-  "include": ["src", "test", "playground"]
+  "include": ["src", "test", "examples", "playground"]
 }

@@ -32,7 +32,7 @@ v0.1 is done when all four targets render from the public API with no workaround
 Tests: array view, compare, swap, pointers.
 
 ```ts
-const t = trace(array([5, 2, 8, 1, 9]));
+const t = traceArray([5, 2, 8, 1, 9]);
 for (let i = 0; i < t.length; i++) {
   for (let j = 0; j < t.length - i - 1; j++) {
     if (t.compare(j, j + 1) > 0) t.swap(j, j + 1);
@@ -47,7 +47,7 @@ render(t, el);
 Tests: ranges, named pointers, captions.
 
 ```ts
-const t = trace(array([1, 3, 5, 7, 9, 11, 13]));
+const t = traceArray([1, 3, 5, 7, 9, 11, 13]);
 let lo = 0, hi = t.length - 1;
 while (lo <= hi) {
   const mid = (lo + hi) >> 1;
@@ -64,7 +64,7 @@ render(t, el);
 Tests: graph view, node and edge states, queue view.
 
 ```ts
-const t = trace(graph({ nodes: ["A", "B", "C", "D", "E"], edges: [["A", "B"], ["A", "C"], ["B", "D"], ["C", "E"]] }));
+const t = traceGraph({ nodes: ["A", "B", "C", "D", "E"], edges: [["A", "B"], ["A", "C"], ["B", "D"], ["C", "E"]] });
 const q = t.queue(["A"]);
 t.visit("A");
 while (q.length) {
@@ -81,7 +81,7 @@ render(t, el);
 Tests: tree layout, growing structures, recursion.
 
 ```ts
-const t = trace(tree());
+const t = traceTree();
 for (const x of [8, 3, 10, 1, 6, 14]) t.insert(x, (node, value) => (value < node.value ? "left" : "right"));
 render(t, el);
 ```
@@ -114,4 +114,6 @@ render(t, el);
 ## Decisions
 
 - **Phase 2:** steps jump with no animation. Add transitions only when a target needs them.
+- **Phase 3:** one tracer per structure (`traceArray`, later `traceGraph`, `traceTree`) in place of `trace(array(...))`. Each tracer carries its view, so `render(t, el)` needs no view argument.
+- **Phase 3:** the target algorithms live in `examples/`. The playground shows them and `test/examples/targets.test.ts` checks they end in the right state.
 - **Phase 2:** every step stores a full snapshot (`structuredClone`). Switch to diffs only if long traces get slow.

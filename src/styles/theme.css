@@ -33,11 +33,29 @@
   height: auto;
 }
 
-/* Views mark shapes with data-state; color is never the only signal, views also change shape or label. */
-.stepthru-figure [data-state] { fill: var(--stepthru-muted); }
-.stepthru-figure [data-state="active"] { fill: var(--stepthru-accent); }
-.stepthru-figure [data-state="done"] { fill: var(--stepthru-done); }
-.stepthru-figure text { fill: var(--stepthru-fg); }
+/* Views mark shapes with data-state. Fills stay light so values on top stay readable. */
+.stepthru-figure [data-state] {
+  fill: var(--stepthru-bg);
+  stroke: var(--stepthru-muted);
+  stroke-width: 1.5;
+}
+.stepthru-figure [data-state="active"] {
+  fill: color-mix(in srgb, var(--stepthru-accent) 25%, var(--stepthru-bg));
+  stroke: var(--stepthru-accent);
+  stroke-width: 3;
+}
+.stepthru-figure [data-state="marked"] {
+  fill: color-mix(in srgb, var(--stepthru-done) 25%, var(--stepthru-bg));
+  stroke: var(--stepthru-done);
+}
+.stepthru-figure [data-dim] { opacity: 0.35; }
+.stepthru-figure .stepthru-range {
+  fill: none;
+  stroke: var(--stepthru-accent);
+  stroke-width: 1.5;
+}
+.stepthru-figure text,
+.stepthru-figure .stepthru-pointer { fill: var(--stepthru-fg); }
 
 .stepthru-caption {
   margin: 0;
