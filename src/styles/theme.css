@@ -1,20 +1,15 @@
-/* Override any --stepthru-* variable on .stepthru or a parent to restyle a figure. */
-.stepthru {
+/* Defaults sit on :where(:root), which has zero specificity, so a host page wins
+   by setting any --stepthru-* variable on :root, a parent or .stepthru itself. */
+:where(:root) {
   --stepthru-fg: #1f2328;
   --stepthru-bg: #ffffff;
   --stepthru-muted: #8c959f;
   --stepthru-accent: #0969da;
   --stepthru-done: #1a7f37;
-
-  display: grid;
-  align-content: start;
-  gap: 0.5rem;
-  color: var(--stepthru-fg);
-  background: var(--stepthru-bg);
 }
 
 @media (prefers-color-scheme: dark) {
-  .stepthru {
+  :where(:root) {
     --stepthru-fg: #e6edf3;
     --stepthru-bg: #0d1117;
     --stepthru-muted: #6e7681;
@@ -23,15 +18,25 @@
   }
 }
 
+.stepthru {
+  display: grid;
+  align-content: start;
+  gap: 0.5rem;
+  color: var(--stepthru-fg);
+  background: var(--stepthru-bg);
+}
+
 .stepthru:focus-visible {
   outline: 2px solid var(--stepthru-accent);
   outline-offset: 2px;
 }
 
 .stepthru-figure svg {
+  /* Natural size, shrinking on narrow screens. Set width: 100% here to scale figures up. */
   display: block;
-  width: 100%;
+  max-width: 100%;
   height: auto;
+  margin-inline: auto;
 }
 
 /* Views mark shapes with data-state. Fills stay light so values on top stay readable. */

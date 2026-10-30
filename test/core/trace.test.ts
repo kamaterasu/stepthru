@@ -1,5 +1,5 @@
 import { describe, expect, test } from "vitest";
-import { createTrace } from "../../src/core/trace";
+import { createTrace, type Trace } from "../../src/core/trace";
 
 describe("createTrace", () => {
   test("starts with the initial state as step 0", () => {
@@ -25,5 +25,15 @@ describe("createTrace", () => {
     t.record("swap", values);
     expect(t.steps[0].state).toEqual([2, 1]);
     expect(t.steps[1].state).toEqual([1, 2]);
+  });
+});
+
+describe("Trace typing", () => {
+  test("traces of different states fit in one Trace<unknown> registry", () => {
+    const registry: Record<string, Trace<unknown>> = {
+      numbers: { ...createTrace([1]), view: (s: number[]) => `${s.length}` },
+      text: { ...createTrace("a"), view: (s: string) => s },
+    };
+    expect(Object.keys(registry)).toEqual(["numbers", "text"]);
   });
 });

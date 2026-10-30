@@ -1,5 +1,5 @@
 import { createTrace, type Trace } from "../core/trace";
-import { escape } from "./svg";
+import { escape, frame } from "./svg";
 
 export interface ArrayState {
   values: number[];
@@ -131,5 +131,5 @@ export function arrayView(s: ArrayState): string {
     ...s.values.map((v, i) => cell(s, v, i)),
     ...pointers(s),
   ];
-  return `<svg viewBox="0 0 ${width} ${BOTTOM + 36}" role="img" aria-label="${escape(`Array: ${label}`)}">${parts.join("")}</svg>`;
+  return frame(`Array: ${label}`, { svg: parts.join(""), width, height: BOTTOM + 36 });
 }

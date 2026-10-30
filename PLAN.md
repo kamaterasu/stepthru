@@ -126,6 +126,7 @@ render(t, el);
 - **Phase 3:** one tracer per structure (`traceArray`, later `traceGraph`, `traceTree`) in place of `trace(array(...))`. Each tracer carries its view, so `render(t, el)` needs no view argument.
 - **Phase 3:** the target algorithms live in `examples/`. The playground shows them and `test/examples/targets.test.ts` checks they end in the right state.
 - **Phase 4:** graphs are undirected and unweighted. Nodes sit in rows by distance from the first node. `shift`, `pop` and `focus` set the current node; `visit` only marks a node visited.
+- **Phase 6:** first real use (a draft tuugu.dev post) found three gaps, now fixed: theme defaults moved to `:where(:root)` so a host can map `--stepthru-*` to its own tokens (the blog switches themes with `data-theme`, not the OS setting); `Trace.view` became a method so mixed figures fit one `Trace<unknown>` registry; SVGs carry their natural `width`/`height` and only shrink, so a small graph no longer scales up to the full column.
 - **Phase 5:** trees are binary with numeric ids. The draft `t.insert(x, chooseSide)` hid the algorithm inside the tracer, so it became `compare`, `child`, `addRoot` and `addChild`. Nodes sit in in-order columns, so subtrees never overlap, but nodes shift sideways as the tree grows.
 - **Phase 5:** node circles, edge lines, the box row under a figure and the outer `<svg>` frame are shared in `src/structures/svg.ts`.
 - **Phase 2:** every step stores a full snapshot (`structuredClone`). Switch to diffs only if long traces get slow.

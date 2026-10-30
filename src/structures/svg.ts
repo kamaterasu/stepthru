@@ -37,7 +37,7 @@ function boxRow({ label, items }: Row, y: number): string {
   return `<text x="0" y="${y + CELL / 2}" dominant-baseline="central" font-size="11">${escape(label)}</text>${cells.join("")}`;
 }
 
-/** Wraps a drawing in an <svg>, centered above an optional row of boxes. */
+/** Wraps a drawing in an <svg> at its natural size, centered above an optional row of boxes. */
 export function frame(
   ariaLabel: string,
   body: { svg: string; width: number; height: number },
@@ -46,7 +46,7 @@ export function frame(
   const width = Math.max(body.width, row ? rowWidth(row) : 0);
   const rowY = body.height + ROW_GAP;
   const height = row ? rowY + CELL : body.height;
-  return `<svg viewBox="0 0 ${width} ${height}" role="img" aria-label="${escape(ariaLabel)}">`
+  return `<svg width="${width}" height="${height}" viewBox="0 0 ${width} ${height}" role="img" aria-label="${escape(ariaLabel)}">`
     + `<g transform="translate(${(width - body.width) / 2} 0)">${body.svg}</g>`
     + (row ? boxRow(row, rowY) : "")
     + "</svg>";

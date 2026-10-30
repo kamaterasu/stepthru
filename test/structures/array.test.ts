@@ -104,7 +104,7 @@ describe("arrayView", () => {
 
   test("dims cells outside every range", () => {
     const svg = parse(arrayView(state({ ranges: { search: [1, 2] } })));
-    expect([...svg.querySelectorAll("g")].map((g) => g.hasAttribute("data-dim"))).toEqual([true, false, false]);
+    expect([...svg.querySelectorAll("g g")].map((g) => g.hasAttribute("data-dim"))).toEqual([true, false, false]);
     expect(svg.querySelector(".stepthru-range")).not.toBeNull();
   });
 

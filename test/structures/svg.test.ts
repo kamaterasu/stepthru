@@ -36,6 +36,7 @@ describe("frame", () => {
   test("wraps the body with an escaped aria label", () => {
     const svg = parse(frame(`a "b"`, body));
     expect(svg.getAttribute("viewBox")).toBe("0 0 100 50");
+    expect([svg.getAttribute("width"), svg.getAttribute("height")]).toEqual(["100", "50"]);
     expect(svg.getAttribute("aria-label")).toBe(`a "b"`);
     expect(svg.querySelector("rect")).toBeNull();
   });
