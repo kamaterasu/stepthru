@@ -78,11 +78,20 @@ render(t, el);
 
 ### 4. Binary search tree (insert, then in-order traversal)
 
-Tests: tree layout, growing structures, recursion.
+Tests: tree layout, growing structures, recursion. The author writes the BST logic; the tracer only records it.
 
 ```ts
 const t = traceTree();
-for (const x of [8, 3, 10, 1, 6, 14]) t.insert(x, (node, value) => (value < node.value ? "left" : "right"));
+for (const x of [8, 3, 10, 1, 6, 14]) {
+  if (t.root === null) { t.addRoot(x); continue; }
+  let id = t.root;
+  for (;;) {
+    const side = t.compare(x, id) < 0 ? "left" : "right";
+    const next = t.child(id, side);
+    if (next === null) { t.addChild(id, side, x); break; }
+    id = next;
+  }
+}
 render(t, el);
 ```
 
@@ -117,4 +126,6 @@ render(t, el);
 - **Phase 3:** one tracer per structure (`traceArray`, later `traceGraph`, `traceTree`) in place of `trace(array(...))`. Each tracer carries its view, so `render(t, el)` needs no view argument.
 - **Phase 3:** the target algorithms live in `examples/`. The playground shows them and `test/examples/targets.test.ts` checks they end in the right state.
 - **Phase 4:** graphs are undirected and unweighted. Nodes sit in rows by distance from the first node. `shift`, `pop` and `focus` set the current node; `visit` only marks a node visited.
+- **Phase 5:** trees are binary with numeric ids. The draft `t.insert(x, chooseSide)` hid the algorithm inside the tracer, so it became `compare`, `child`, `addRoot` and `addChild`. Nodes sit in in-order columns, so subtrees never overlap, but nodes shift sideways as the tree grows.
+- **Phase 5:** node circles, edge lines, the box row under a figure and the outer `<svg>` frame are shared in `src/structures/svg.ts`.
 - **Phase 2:** every step stores a full snapshot (`structuredClone`). Switch to diffs only if long traces get slow.

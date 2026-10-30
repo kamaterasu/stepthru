@@ -1,5 +1,5 @@
 import { createTrace, type Trace } from "../core/trace";
-import { escape } from "./svg";
+import { edgeLine, frame, NODE_R, nodeCircle, type Point } from "./svg";
 
 export interface GraphInput {
   nodes: string[];
@@ -154,13 +154,11 @@ export function traceGraph(input: GraphInput, caption = ""): GraphTrace {
   };
 }
 
-const R = 18; // node radius
 const GAP_X = 72;
 const GAP_Y = 72;
-const CELL = 32;
 
 // shortcut: rows by BFS depth from the first node; edges inside a row can cross nodes. Add a real layout if a target needs it.
-function layout(input: GraphInput): { pos: Map<string, [number, number]>; width: number; height: number } {
+function layout(input: GraphInput): { pos: Map<string, Point>; width: number; height: number } {
   const adj = adjacency(input);
   const depth = new Map([[input.nodes[0], 0]]);
   const order = [input.nodes[0]];
@@ -177,48 +175,30 @@ function layout(input: GraphInput): { pos: Map<string, [number, number]>; width:
   for (const id of input.nodes) (rows[depth.get(id) ?? unreached] ??= []).push(id);
 
   const width = Math.max(...rows.map((r) => r.length)) * GAP_X;
-  const pos = new Map<string, [number, number]>();
+  const pos = new Map<string, Point>();
   rows.forEach((row, d) =>
-    row.forEach((id, c) => pos.set(id, [((c + 0.5) * width) / row.length, d * GAP_Y + R + 2])),
+    row.forEach((id, c) => pos.set(id, [((c + 0.5) * width) / row.length, d * GAP_Y + NODE_R + 2])),
   );
-  return { pos, width, height: rows.length * GAP_Y - GAP_Y + 2 * R + 4 };
-}
-
-function listRow(list: NonNullable<GraphState["list"]>, y: number): string {
-  const label = `<text x="0" y="${y + CELL / 2}" dominant-baseline="central" font-size="11">${list.kind}</text>`;
-  const cells = list.items.map((id, i) => {
-    const x = 48 + i * (CELL + 4);
-    return `<rect data-state="idle" x="${x}" y="${y}" width="${CELL}" height="${CELL}" rx="4"/>`
-      + `<text x="${x + CELL / 2}" y="${y + CELL / 2}" text-anchor="middle" dominant-baseline="central">${escape(id)}</text>`;
-  });
-  return label + cells.join("");
+  return { pos, width, height: (rows.length - 1) * GAP_Y + 2 * NODE_R + 4 };
 }
 
 /** Draws nodes in rows by distance from the first node, with the queue or stack underneath. */
 export function graphView(s: GraphState): string {
   const { pos, width, height } = layout(s);
-  const edges = s.edges.map(([u, v]) => {
-    const [x1, y1] = pos.get(u)!;
-    const [x2, y2] = pos.get(v)!;
-    const state = edgeKey(u, v) in s.edgeMarks ? "marked" : "idle";
-    return `<line data-state="${state}" x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}"/>`;
-  });
-  const nodes = s.nodes.map((id) => {
-    const [x, y] = pos.get(id)!;
-    const state = id === s.current ? "active" : s.visited.includes(id) ? "marked" : "idle";
-    return `<circle data-state="${state}" cx="${x}" cy="${y}" r="${R}"/>`
-      + `<text x="${x}" y="${y}" text-anchor="middle" dominant-baseline="central">${escape(id)}</text>`;
-  });
-  const listY = height + 16;
-  const totalHeight = s.list ? listY + CELL : height;
-  const totalWidth = s.list ? Math.max(width, 48 + s.list.items.length * (CELL + 4)) : width;
-
+  const edges = s.edges.map(([u, v]) =>
+    edgeLine(pos.get(u)!, pos.get(v)!, edgeKey(u, v) in s.edgeMarks ? "marked" : "idle"),
+  );
+  const nodes = s.nodes.map((id) =>
+    nodeCircle(pos.get(id)!, id, id === s.current ? "active" : s.visited.includes(id) ? "marked" : "idle"),
+  );
   const label = [
     `visited ${s.visited.join(", ") || "none"}`,
     s.current && `current ${s.current}`,
     s.list && `${s.list.kind} ${s.list.items.join(", ") || "empty"}`,
   ].filter(Boolean).join("; ");
-  return `<svg viewBox="0 0 ${totalWidth} ${totalHeight}" role="img" aria-label="${escape(`Graph: ${label}`)}">`
-    + `<g transform="translate(${(totalWidth - width) / 2} 0)">${edges.join("")}${nodes.join("")}</g>`
-    + (s.list ? listRow(s.list, listY) : "") + "</svg>";
+  return frame(
+    `Graph: ${label}`,
+    { svg: edges.join("") + nodes.join(""), width, height },
+    s.list && { label: s.list.kind, items: s.list.items },
+  );
 }

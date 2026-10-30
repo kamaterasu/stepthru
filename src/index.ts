@@ -12,3 +12,12 @@ export {
   type GraphState,
   type GraphTrace,
 } from "./structures/graph";
+export {
+  traceTree,
+  treeView,
+  type Side,
+  type TreeInput,
+  type TreeNode,
+  type TreeState,
+  type TreeTrace,
+} from "./structures/tree";

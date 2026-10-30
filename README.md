@@ -2,7 +2,7 @@
 
 Step-through visualizations of algorithms. Write the real algorithm, call tracer hooks inside it, and stepthru records each step and plays it back as an SVG figure you can play, pause and scrub.
 
-Status: arrays and graphs work (phase 4). Trees are next. See [PLAN.md](PLAN.md).
+Status: arrays, graphs and binary trees work (phase 5). Next: use it in a real tuugu.dev post. See [PLAN.md](PLAN.md).
 
 ```ts
 import { render, traceArray } from "stepthru";
@@ -30,7 +30,7 @@ npm test
 src/
   core/      trace recorder and player, no DOM
   dom/       renders a trace into the page
-  structures/ one file per structure: its tracer and its view (array.ts, graph.ts)
+  structures/ one file per structure: its tracer and its view (array.ts, graph.ts, tree.ts) and shared SVG shapes (svg.ts)
   styles/    theme.css, shipped as stepthru/theme.css
   index.ts   public API
 test/        mirrors src/ (test/core/player.test.ts tests src/core/player.ts)

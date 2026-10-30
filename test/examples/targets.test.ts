@@ -1,13 +1,14 @@
 // Acceptance tests: the PLAN.md targets run on the public API and end in the right state.
 import { describe, expect, test } from "vitest";
 import { bfs } from "../../examples/bfs";
+import { bstInsert, inOrder } from "../../examples/bst";
 import { binarySearch } from "../../examples/binary-search";
 import { bubbleSort } from "../../examples/bubble-sort";
 import { dfs } from "../../examples/dfs";
 import { quickSort } from "../../examples/quicksort";
-import { edgeKey, type ArrayTrace, type GraphInput, type GraphTrace } from "../../src/index";
+import { edgeKey, type ArrayTrace, type GraphInput, type GraphTrace, type TreeState, type TreeTrace } from "../../src/index";
 
-const final = <T extends ArrayTrace | GraphTrace>(t: T): T["steps"][number] => t.steps[t.steps.length - 1];
+const final = <T extends ArrayTrace | GraphTrace | TreeTrace>(t: T): T["steps"][number] => t.steps[t.steps.length - 1];
 const inputs = [[5, 2, 8, 1, 9, 3], [1], [2, 1], [3, 3, 1, 3], [1, 2, 3, 4], [4, 3, 2, 1]];
 
 describe.each([
@@ -61,5 +62,42 @@ describe("graph search", () => {
 
   test.each([["bfs", bfs], ["dfs", dfs]])("%s leaves unreachable nodes alone", (_, search) => {
     expect(final(search(graph, "A")).state.visited).not.toContain("Z");
+  });
+});
+
+describe("binary search tree", () => {
+  const values = [8, 3, 10, 1, 6, 14, 4, 7, 13];
+  // Reads the final tree back as a nested literal, so the shape is easy to compare.
+  const shape = (s: TreeState, id = s.root): unknown =>
+    id === null ? null : { v: s.nodes[id].value, l: shape(s, s.nodes[id].left), r: shape(s, s.nodes[id].right) };
+  const leaf = (v: number) => ({ v, l: null, r: null });
+
+  test("bstInsert builds the expected tree", () => {
+    const { state } = final(bstInsert([8, 3, 10, 1, 6, 14]));
+    expect(shape(state)).toEqual({
+      v: 8,
+      l: { v: 3, l: leaf(1), r: leaf(6) },
+      r: { v: 10, l: null, r: leaf(14) },
+    });
+  });
+
+  test("bstInsert sends equal values right", () => {
+    expect(shape(final(bstInsert([5, 5])).state)).toEqual({ v: 5, l: null, r: leaf(5) });
+  });
+
+  test("bstInsert of nothing leaves an empty tree", () => {
+    expect(final(bstInsert([])).state.root).toBeNull();
+  });
+
+  test("inOrder visits a BST in sorted order", () => {
+    const tree = {
+      value: 8,
+      left: { value: 3, left: { value: 1 }, right: { value: 6, left: { value: 4 }, right: { value: 7 } } },
+      right: { value: 10, right: { value: 14, left: { value: 13 } } },
+    };
+    const t = inOrder(tree);
+    const { state, caption } = final(t);
+    expect(state.visited.map((id) => state.nodes[id].value)).toEqual([...values].sort((a, b) => a - b));
+    expect(caption).toBe("Done: the visit order is sorted");
   });
 });
