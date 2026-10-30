@@ -1,3 +1,3 @@
-export { createTrace, type Step, type Trace } from "./trace";
-export { createPlayer, type Player, type PlayerState } from "./player";
-export { render, type RenderOptions, type View } from "./render";
+export { createTrace, type Step, type Trace } from "./core/trace";
+export { createPlayer, type Player, type PlayerState } from "./core/player";
+export { render, type RenderOptions, type View } from "./dom/render";

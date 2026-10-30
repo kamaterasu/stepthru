@@ -1,5 +1,5 @@
 import { describe, expect, test } from "vitest";
-import { createTrace } from "./trace";
+import { createTrace } from "../../src/core/trace";
 
 describe("createTrace", () => {
   test("starts with the initial state as step 0", () => {

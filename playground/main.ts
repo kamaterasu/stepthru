@@ -1,5 +1,5 @@
 import { createTrace, render } from "../src/index";
-import "../src/theme.css";
+import "../src/styles/theme.css";
 
 // Placeholder view until the array view lands in phase 3.
 interface Bars {

@@ -1,5 +1,5 @@
-import { createPlayer, type Player, type PlayerState } from "./player";
-import type { Trace } from "./trace";
+import { createPlayer, type Player, type PlayerState } from "../core/player";
+import type { Trace } from "../core/trace";
 
 /** Turns one state into SVG markup. Views must escape any text they put in the markup. */
 export type View<S> = (state: S) => string;

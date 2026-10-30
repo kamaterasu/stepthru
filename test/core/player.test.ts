@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
-import { createPlayer, type PlayerState } from "./player";
+import { createPlayer, type PlayerState } from "../../src/core/player";
 
 describe("createPlayer", () => {
   let changes: PlayerState[];

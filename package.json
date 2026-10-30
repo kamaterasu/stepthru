@@ -4,7 +4,7 @@
   "description": "Step-through visualizations of algorithms, driven by tracing real code.",
   "main": "./dist/index.js",
   "scripts": {
-    "build": "tsc -p tsconfig.build.json && cp src/theme.css dist/",
+    "build": "tsc -p tsconfig.build.json && cp src/styles/theme.css dist/",
     "test": "vitest run",
     "typecheck": "tsc --noEmit",
     "play": "vite playground",

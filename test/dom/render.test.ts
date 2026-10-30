@@ -1,7 +1,7 @@
 // @vitest-environment happy-dom
 import { beforeEach, describe, expect, test } from "vitest";
-import { render } from "./render";
-import { createTrace } from "./trace";
+import { render } from "../../src/dom/render";
+import { createTrace } from "../../src/core/trace";
 
 const view = (n: number) => `<svg><text>${n}</text></svg>`;
 
