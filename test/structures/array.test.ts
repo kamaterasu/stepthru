@@ -43,7 +43,9 @@ describe("traceArray", () => {
   test("swap exchanges values", () => {
     const t = traceArray([5, 2]);
     t.swap(0, 1);
-    expect(lastStep(t)).toMatchObject({ op: "swap", caption: "Swap 5 and 2", state: { values: [2, 5], active: [0, 1] } });
+    expect(lastStep(t)).toMatchObject({ op: "swap", caption: "Swap 5 and 2", state: { values: [2, 5], active: [], moved: [0, 1] } });
+    t.compare(0, 1);
+    expect(lastStep(t).state).toMatchObject({ active: [0, 1], moved: [] });
   });
 
   test("mark, pointer, range and clear update state", () => {
@@ -76,12 +78,20 @@ describe("traceArray", () => {
     t.note("look here");
     expect(lastStep(t)).toMatchObject({ op: "note", caption: "look here", state: { active: [0, 1] } });
   });
+
+  test("note after a swap keeps the moved cells", () => {
+    const t = traceArray([2, 1]);
+    t.swap(0, 1);
+    t.note("look here");
+    expect(lastStep(t).state).toMatchObject({ active: [], moved: [0, 1] });
+  });
 });
 
 describe("arrayView", () => {
   const state = (over: Partial<ArrayState> = {}): ArrayState => ({
     values: [1, 2, 3],
     active: [],
+    moved: [],
     marks: {},
     pointers: {},
     ranges: {},
@@ -100,6 +110,11 @@ describe("arrayView", () => {
   test("active wins over marked, and the rest are idle", () => {
     const svg = parse(arrayView(state({ active: [0], marks: { 0: "sorted", 1: "sorted" } })));
     expect(cellStates(svg)).toEqual(["active", "marked", "idle"]);
+  });
+
+  test("moved cells get their own state", () => {
+    const svg = parse(arrayView(state({ moved: [1, 2], active: [2], marks: { 1: "sorted" } })));
+    expect(cellStates(svg)).toEqual(["idle", "moved", "moved"]);
   });
 
   test("dims cells outside every range", () => {

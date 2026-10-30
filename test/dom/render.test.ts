@@ -1,5 +1,5 @@
 // @vitest-environment happy-dom
-import { beforeEach, describe, expect, test } from "vitest";
+import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 import { render } from "../../src/dom/render";
 import { createTrace } from "../../src/core/trace";
 
@@ -79,5 +79,79 @@ describe("render", () => {
     scrub.value = "2";
     scrub.dispatchEvent(new Event("input"));
     expect(text(".stepthru-figure")).toBe("30");
+  });
+});
+
+describe("render extras", () => {
+  const sized = (w: number) => `<svg width="${w}" height="${w / 2}" viewBox="0 0 ${w} ${w / 2}"></svg>`;
+  const make = () => {
+    const t = createTrace(100, "start");
+    t.record("grow", 200, "bigger");
+    const el = document.createElement("div");
+    return { el, figure: render(t, el, { view: sized, intervalMs: 100 }) };
+  };
+  const svgAttrs = (el: HTMLElement) =>
+    ["width", "height", "viewBox"].map((a) => el.querySelector(".stepthru-figure svg")!.getAttribute(a));
+
+  afterEach(() => {
+    vi.useRealTimers();
+    vi.unstubAllGlobals();
+  });
+
+  test("every step keeps the size of the largest step", () => {
+    const { el, figure } = make();
+    expect(svgAttrs(el)).toEqual(["200", "100", "-50 0 200 100"]);
+    figure.next();
+    expect(svgAttrs(el)).toEqual(["200", "100", "0 0 200 100"]);
+  });
+
+  test("captions are announced when stepping, not while playing", () => {
+    vi.useFakeTimers();
+    const { el, figure } = make();
+    const caption = el.querySelector(".stepthru-caption")!;
+    expect(caption.getAttribute("aria-live")).toBe("polite");
+    figure.play();
+    expect(caption.getAttribute("aria-live")).toBe("off");
+    vi.advanceTimersByTime(100);
+    expect(caption.getAttribute("aria-live")).toBe("polite");
+  });
+
+  test("buttons use icons with labels", () => {
+    const { el, figure } = make();
+    const toggle = el.querySelector('[data-action="toggle"]')!;
+    expect(toggle.querySelector("svg[aria-hidden]")).not.toBeNull();
+    const before = toggle.innerHTML;
+    figure.play();
+    expect(toggle.innerHTML).not.toBe(before);
+    figure.pause();
+  });
+
+  test("pauses when the figure leaves the screen", () => {
+    let report: (entries: { isIntersecting: boolean }[]) => void = () => {};
+    const disconnect = vi.fn();
+    vi.stubGlobal("IntersectionObserver", class {
+      constructor(callback: typeof report) { report = callback; }
+      observe() {}
+      disconnect = disconnect;
+    });
+    const { figure } = make();
+    figure.play();
+    report([{ isIntersecting: true }]);
+    expect(figure.state.playing).toBe(true);
+    report([{ isIntersecting: false }]);
+    expect(figure.state.playing).toBe(false);
+    figure.destroy();
+    expect(disconnect).toHaveBeenCalled();
+  });
+
+  test("destroy stops playback and ignores later input", () => {
+    vi.useFakeTimers();
+    const { el, figure } = make();
+    figure.play();
+    figure.destroy();
+    expect(figure.state.playing).toBe(false);
+    el.querySelector<HTMLButtonElement>('[data-action="next"]')!.click();
+    vi.advanceTimersByTime(500);
+    expect(figure.state.index).toBe(0);
   });
 });

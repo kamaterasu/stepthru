@@ -42,7 +42,7 @@ const t = traceArray([1, 3, 5, 7], "optional first caption");
 |---|---|---|
 | `t.length`, `t.get(i)` | no | Read |
 | `t.compare(i, j)` | yes | Highlights both cells. Returns `a[i] - a[j]` |
-| `t.swap(i, j)` | yes | Swaps two values |
+| `t.swap(i, j)` | yes | Swaps two values. Moved cells are drawn dashed, so a swap looks different from a compare |
 | `t.mark(i, name)` | yes | Marks a cell, for example `"sorted"` or `"found"` |
 | `t.pointer(name, i)` | yes | Draws a named pointer under a cell |
 | `t.range(name, lo, hi)` | yes | Draws a bracket over `lo..hi` and dims cells outside every range |
@@ -93,9 +93,13 @@ const player = render(t, el, { intervalMs: 800 });
 player.play();
 ```
 
-`render` returns the player: `seek(i)`, `next()`, `prev()`, `play()`, `pause()`, `toggle()` and `state` (`{ index, playing }`). Call `pause()` before removing a figure from the page so its timer stops.
+`render` returns the player: `seek(i)`, `next()`, `prev()`, `play()`, `pause()`, `toggle()`, `state` (`{ index, playing }`) and `destroy()`. Call `destroy()` before removing a figure from the page: it stops playback and removes the figure's listeners.
 
-Keyboard, once the figure has focus: ← → step, space plays or pauses, Home and End jump to the first or last step. Captions are announced to screen readers.
+- Keyboard, once the figure has focus: ← → step, space plays or pauses, Home and End jump to the first or last step.
+- Screen readers hear the caption of each step the reader moves to. During playback captions are not announced, so a step every 800 ms does not flood the reader.
+- Playback pauses when the figure scrolls out of view.
+- The figure keeps the size of its largest step, so it does not jump while a tree or graph grows.
+- Nothing plays until the reader presses play.
 
 ## Theming
 

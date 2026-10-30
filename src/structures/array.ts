@@ -3,8 +3,10 @@ import { escape, frame } from "./svg.js";
 
 export interface ArrayState {
   values: number[];
-  /** Indexes the current step touches. */
+  /** Indexes the current step looks at, such as a compare. */
   active: number[];
+  /** Indexes whose values the current step moved, such as a swap. */
+  moved: number[];
   /** Index to mark name, such as "sorted" or "found". */
   marks: Record<number, string>;
   /** Pointer name to index. */
@@ -31,7 +33,7 @@ export interface ArrayTrace extends Trace<ArrayState> {
 
 export function traceArray(values: readonly number[], caption = ""): ArrayTrace {
   if (values.length === 0) throw new RangeError("traceArray needs at least one value");
-  const s: ArrayState = { values: [...values], active: [], marks: {}, pointers: {}, ranges: {} };
+  const s: ArrayState = { values: [...values], active: [], moved: [], marks: {}, pointers: {}, ranges: {} };
   const t = createTrace(s, caption);
   const last = s.values.length - 1;
 
@@ -40,8 +42,9 @@ export function traceArray(values: readonly number[], caption = ""): ArrayTrace 
       if (!Number.isInteger(i) || i < 0 || i > last) throw new RangeError(`index ${i} is outside 0..${last}`);
     }
   };
-  const step = (op: string, active: number[], caption: string) => {
+  const step = (op: string, active: number[], caption: string, moved: number[] = []) => {
     s.active = active;
+    s.moved = moved;
     t.record(op, s, caption);
   };
 
@@ -62,7 +65,7 @@ export function traceArray(values: readonly number[], caption = ""): ArrayTrace 
     swap(i, j, caption) {
       check(i, j);
       [s.values[i], s.values[j]] = [s.values[j], s.values[i]];
-      step("swap", [i, j], caption ?? `Swap ${s.values[j]} and ${s.values[i]}`);
+      step("swap", [], caption ?? `Swap ${s.values[j]} and ${s.values[i]}`, [i, j]);
     },
     mark(i, name, caption) {
       check(i);
@@ -85,7 +88,7 @@ export function traceArray(values: readonly number[], caption = ""): ArrayTrace 
       step("clear", [], caption ?? `Clear ${name}`);
     },
     note(caption) {
-      step("note", s.active, caption);
+      step("note", s.active, caption, s.moved);
     },
   };
 }
@@ -98,7 +101,7 @@ const BOTTOM = TOP + CELL;
 const center = (i: number) => i * PITCH + CELL / 2;
 
 function cell(s: ArrayState, v: number, i: number): string {
-  const state = s.active.includes(i) ? "active" : i in s.marks ? "marked" : "idle";
+  const state = s.moved.includes(i) ? "moved" : s.active.includes(i) ? "active" : i in s.marks ? "marked" : "idle";
   const ranges = Object.values(s.ranges);
   const dim = ranges.length > 0 && !ranges.some(([lo, hi]) => i >= lo && i <= hi);
   return `<g${dim ? ' data-dim=""' : ""}><rect data-state="${state}" x="${i * PITCH}" y="${TOP}" width="${CELL}" height="${CELL}" rx="4"/>`

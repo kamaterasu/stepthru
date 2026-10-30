@@ -20,6 +20,7 @@
 
 .stepthru {
   display: grid;
+  grid-template-columns: minmax(0, 1fr); /* without this the column grows to fit the controls and overflows phones */
   align-content: start;
   gap: 0.5rem;
   color: var(--stepthru-fg);
@@ -50,6 +51,12 @@
   stroke: var(--stepthru-accent);
   stroke-width: 3;
 }
+.stepthru-figure [data-state="moved"] {
+  fill: color-mix(in srgb, var(--stepthru-accent) 25%, var(--stepthru-bg));
+  stroke: var(--stepthru-accent);
+  stroke-width: 3;
+  stroke-dasharray: 6 3; /* dashed, so a swap differs from a compare without relying on color */
+}
 .stepthru-figure [data-state="marked"] {
   fill: color-mix(in srgb, var(--stepthru-done) 25%, var(--stepthru-bg));
   stroke: var(--stepthru-done);
@@ -76,17 +83,35 @@
 }
 
 .stepthru-controls button {
+  display: inline-grid;
+  place-items: center;
   min-width: 2.25rem;
   min-height: 2.25rem;
-  font: inherit;
+  padding: 0;
+  color: var(--stepthru-fg);
+  background: var(--stepthru-bg);
+  border: 1px solid var(--stepthru-muted);
+  border-radius: 4px;
+  cursor: pointer;
+}
+.stepthru-controls button:hover {
+  border-color: var(--stepthru-accent);
+  color: var(--stepthru-accent);
+}
+.stepthru-controls button:focus-visible,
+.stepthru-scrub:focus-visible {
+  outline: 2px solid var(--stepthru-accent);
+  outline-offset: 2px;
 }
 
 .stepthru-scrub {
   flex: 1;
+  min-width: 0; /* browsers give range inputs a minimum width; let it shrink on phones */
   accent-color: var(--stepthru-accent);
 }
 
 .stepthru-counter {
+  white-space: nowrap;
   font-variant-numeric: tabular-nums;
   color: var(--stepthru-muted);
 }
