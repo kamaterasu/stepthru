@@ -117,3 +117,36 @@
   font-variant-numeric: tabular-nums;
   color: var(--stepthru-muted);
 }
+
+.stepthru-vars {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem 1.25rem;
+  min-height: 1.5em; /* keeps the layout still when a step has no variables */
+  margin: 0;
+  font-family: ui-monospace, monospace;
+  font-size: 0.875em;
+}
+.stepthru-vars div { display: flex; gap: 0.4em; }
+.stepthru-vars dt { color: var(--stepthru-muted); }
+.stepthru-vars dt::after { content: " ="; }
+.stepthru-vars dd { margin: 0; }
+
+.stepthru-code {
+  margin: 0;
+  padding: 0.5rem 0;
+  overflow-x: auto;
+  font: 0.875em/1.6 ui-monospace, monospace;
+  border: 1px solid color-mix(in srgb, var(--stepthru-muted) 40%, var(--stepthru-bg));
+  border-radius: 4px;
+}
+/* One block per line, so the highlight spans the full width. */
+.stepthru-line {
+  display: block;
+  min-height: 1.6em;
+  padding: 0 0.75rem;
+}
+.stepthru-line.is-current {
+  background: color-mix(in srgb, var(--stepthru-accent) 24%, var(--stepthru-bg));
+  box-shadow: inset 3px 0 0 var(--stepthru-accent); /* a bar as well as a tint, so color is not the only signal */
+}

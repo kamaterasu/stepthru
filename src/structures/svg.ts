@@ -1,8 +1,6 @@
-const ENTITIES: Record<string, string> = { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" };
+import { escape } from "../core/escape.js";
 
-/** Escapes text for use inside SVG markup, in content or attribute values. */
-export const escape = (text: string | number): string =>
-  String(text).replace(/[&<>"']/g, (c) => ENTITIES[c]);
+export { escape };
 
 export type ShapeState = "idle" | "active" | "marked";
 export type Point = readonly [x: number, y: number];

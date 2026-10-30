@@ -66,8 +66,7 @@ export function traceTree(input: TreeInput | null = null, caption = ""): TreeTra
   const add = (value: number) => s.nodes.push({ value, left: null, right: null }) - 1;
 
   return {
-    steps: t.steps,
-    record: t.record,
+    ...t,
     view: treeView,
     get root() {
       return s.root;

@@ -11,7 +11,7 @@
     "licenses": "license-checker --production --onlyAllow \"MIT;ISC;BSD-2-Clause;BSD-3-Clause;Apache-2.0\" --excludePackages \"$npm_package_name@$npm_package_version\"",
     "site": "vite build playground --base /stepthru/ --outDir ../site --emptyOutDir",
     "prepublishOnly": "npm run typecheck && npm test && npm run build && npm run smoke",
-    "smoke": "node --input-type=module -e \"const { traceArray } = await import('stepthru'); const t = traceArray([2, 1]); t.swap(0, 1); if (!t.view(t.steps[1].state).startsWith('<svg')) throw new Error('smoke test failed'); console.log('smoke ok');\""
+    "smoke": "node --input-type=module -e \"const { traceArray, toHTML } = await import('stepthru'); const t = traceArray([2, 1]); t.at(1); t.watch({ i: 0 }); t.swap(0, 1); const html = toHTML(t, { code: 'swap()' }); if (!t.view(t.steps[1].state).startsWith('<svg') || !html.includes('stepthru-code')) throw new Error('smoke test failed'); console.log('smoke ok');\""
   },
   "keywords": [
     "algorithm",

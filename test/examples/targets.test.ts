@@ -2,8 +2,8 @@
 import { describe, expect, test } from "vitest";
 import { bfs } from "../../examples/bfs";
 import { bstInsert, inOrder } from "../../examples/bst";
-import { binarySearch } from "../../examples/binary-search";
-import { bubbleSort } from "../../examples/bubble-sort";
+import { binarySearch, binarySearchCode } from "../../examples/binary-search";
+import { bubbleSort, bubbleSortCode } from "../../examples/bubble-sort";
 import { dfs } from "../../examples/dfs";
 import { quickSort } from "../../examples/quicksort";
 import { edgeKey, type ArrayTrace, type GraphInput, type GraphTrace, type TreeState, type TreeTrace } from "../../src/index";
@@ -99,5 +99,36 @@ describe("binary search tree", () => {
     const { state, caption } = final(t);
     expect(state.visited.map((id) => state.nodes[id].value)).toEqual([...values].sort((a, b) => a - b));
     expect(caption).toBe("Done: the visit order is sorted");
+  });
+});
+
+describe("code lines in the examples", () => {
+  // Each op must point at a line that does that thing, so the listing and the traced code cannot drift apart.
+  const check = (t: ArrayTrace, code: string, expected: Record<string, string>) => {
+    const lines = code.split("\n");
+    const tagged = t.steps.filter((s) => s.line !== undefined);
+    expect(tagged.length).toBeGreaterThan(0);
+    for (const step of tagged) {
+      expect(lines[step.line! - 1], `${step.op} at line ${step.line}`).toContain(expected[step.op]);
+    }
+  };
+
+  test("bubble sort", () => {
+    check(bubbleSort([3, 1, 2]), bubbleSortCode, { compare: "a[j] > a[j + 1]", swap: "[a[j], a[j + 1]] =", mark: "final place" });
+  });
+
+  test.each([[9], [4]])("binary search for %i", (target) => {
+    check(binarySearch([1, 3, 5, 7, 9, 11, 13], target), binarySearchCode, {
+      range: "while (lo <= hi)",
+      pointer: "const mid",
+      mark: "a[mid] === target",
+      clear: "return -1",
+    });
+  });
+
+  test("bubble sort shows i and j, and hides j once a pass ends", () => {
+    const steps = bubbleSort([2, 1]).steps;
+    expect(steps.find((s) => s.op === "compare")!.vars).toEqual({ i: 0, j: 0 });
+    expect(steps.find((s) => s.op === "mark")!.vars).toEqual({ i: 0, j: undefined });
   });
 });

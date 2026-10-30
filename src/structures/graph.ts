@@ -113,8 +113,7 @@ export function traceGraph(input: GraphInput, caption = ""): GraphTrace {
   };
 
   return {
-    steps: t.steps,
-    record: t.record,
+    ...t,
     view: graphView,
     neighbors(id) {
       check(id);

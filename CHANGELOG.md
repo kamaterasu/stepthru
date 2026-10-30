@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+- New: `t.at(line)` and `render(t, el, { code })` show the code next to the figure and highlight the line each step came from.
+- New: `t.watch({ i, j })` shows variables with each step.
+- New: `labels` option to translate the controls' screen reader text and tooltips. Defaults are exported as `LABELS`.
+- New: `toHTML(trace, options)` renders the first step as an HTML string with no DOM, for server or build-time rendering. `render` on the same element makes it playable.
+- `Step` has optional `line` and `vars`; `Trace` has `at` and `watch`. Custom tracers built with `createTrace` get both.
 - Brand: logo, palette, guidelines (`BRAND.md`) and a social preview image.
 - The default theme uses the brand palette in place of GitHub's colors. Every pair meets WCAG AA. Sites that set `--stepthru-*` are not affected.
 - Fix: the outer stroke of cells at the edge of a figure was cut off.

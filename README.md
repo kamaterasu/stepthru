@@ -34,6 +34,32 @@ No runtime dependencies. Works in any page or framework that can give it a DOM e
 
 Every hook writes a default caption ("Compare 5 and 2"). Pass your own as the last argument to any hook. Hooks that only read (`get`, `neighbors`, `child`, …) record nothing.
 
+## Code and variables
+
+Show the code next to the figure, and the variables of each step:
+
+```ts
+const code = `for (let i = 0; i < a.length; i++) {
+  for (let j = 0; j < a.length - i - 1; j++) {
+    if (a[j] > a[j + 1]) swap(a, j, j + 1);
+  }
+}`;
+
+const t = traceArray([5, 2, 8, 1]);
+for (let i = 0; i < t.length; i++) {
+  for (let j = 0; j < t.length - i - 1; j++) {
+    t.watch({ i, j });   // shown with every step from here on
+    t.at(3);             // steps from here on highlight line 3 of `code`
+    if (t.compare(j, j + 1) > 0) t.swap(j, j + 1);
+  }
+}
+render(t, el, { code });
+```
+
+`t.at(line)` and `t.watch(vars)` work on every tracer and record no step themselves; they tag the steps recorded after them. Line numbers are 1-based and refer to the `code` string you pass to `render`. `watch` merges with earlier calls; a value of `undefined` hides that variable.
+
+The listing can be a cleaned-up copy of the algorithm, without the tracer calls. Keep a test that checks each tagged line still contains the code it should (see `test/examples/targets.test.ts`), so the two cannot drift apart.
+
 ## Arrays
 
 ```ts
@@ -103,6 +129,19 @@ player.play();
 - The figure keeps the size of its largest step, so it does not jump while a tree or graph grows.
 - Nothing plays until the reader presses play.
 
+## Labels
+
+The controls' screen reader text and tooltips are English by default. Translate any of them:
+
+```ts
+render(t, el, {
+  labels: { first: "Эхний алхам", prev: "Өмнөх алхам", play: "Тоглуулах", pause: "Зогсоох",
+            next: "Дараах алхам", last: "Сүүлийн алхам", step: "Алхам", code: "Код", variables: "Хувьсагч" },
+});
+```
+
+The defaults are exported as `LABELS`.
+
 ## Theming
 
 `stepthru/theme.css` styles the player and the views. Its colors are CSS variables with defaults for light and dark (from the OS setting). Set them anywhere to match your site:
@@ -121,14 +160,20 @@ Figures render at their natural size and only shrink on narrow screens. Add `.st
 
 ## Without JavaScript
 
-A view is a plain function from state to SVG markup, so you can render any step on the server or at build time:
+`toHTML(trace, options)` returns the figure's first step as an HTML string. It needs no DOM, so it runs on the server or at build time. Put it inside an element with class `stepthru`, then call `render` on that element in the browser:
 
-```ts
+```astro
+---
+// Astro component: rendered at build time
 const t = bubbleSort([5, 2, 8]);
-const html = t.view!(t.steps[0].state);   // a static <svg>
+---
+<div class="stepthru" data-figure="bubble" set:html={toHTML(t, { code })} />
+<script>
+  render(bubbleSort([5, 2, 8]), document.querySelector('[data-figure="bubble"]'), { code });
+</script>
 ```
 
-`render` replaces the element's content, so put that static SVG in the element and the figure upgrades when the script runs.
+Without JavaScript, readers see the first step, its caption and the code. The controls stay hidden until `render` runs, so there are no buttons that do nothing.
 
 ## Your own structures
 

@@ -49,8 +49,7 @@ export function traceArray(values: readonly number[], caption = ""): ArrayTrace 
   };
 
   return {
-    steps: t.steps,
-    record: t.record,
+    ...t,
     view: arrayView,
     length: s.values.length,
     get(i) {
