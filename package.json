@@ -1,6 +1,6 @@
 {
   "name": "stepthru",
-  "version": "0.1.1",
+  "version": "0.2.0",
   "description": "Step-through algorithm figures: trace your real code, get a playable SVG with captions.",
   "main": "./dist/index.js",
   "scripts": {
