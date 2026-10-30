@@ -23,30 +23,76 @@
         --soft: color-mix(in srgb, var(--stepthru-muted) 8%, var(--stepthru-bg));
         --line: color-mix(in srgb, var(--stepthru-muted) 30%, var(--stepthru-bg));
         font: 16px/1.6 system-ui, sans-serif;
+        scroll-padding-top: 1rem;
       }
       body { margin: 0; color: var(--ink); background: var(--page); }
-      main { max-width: 46rem; margin: 0 auto; padding: 2rem 1rem 4rem; }
-      h1 { display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0; font-size: 2.25rem; letter-spacing: -0.02em; }
+      a { color: var(--stepthru-accent); }
+      .layout { display: grid; grid-template-columns: minmax(0, 1fr); padding: 0 1rem; }
+      main { min-width: 0; padding: 2rem 0 4rem; }
+
+      /* Contents: a link row on phones, a sticky column from 64rem */
+      .toc { border-bottom: 1px solid var(--line); padding: 0.75rem 0; font-size: 0.9375rem; }
+      .toc ul { list-style: none; margin: 0; padding: 0; }
+      .toc > ul { display: flex; flex-wrap: wrap; gap: 0.25rem 1rem; }
+      .toc ul ul { display: none; }
+      .toc a { color: var(--ink); text-decoration: none; }
+      .toc a:hover, .toc a[aria-current] { color: var(--stepthru-accent); }
+      .toc a[aria-current] { font-weight: 600; }
+      @media (min-width: 64rem) {
+        .layout { grid-template-columns: 13rem minmax(0, 46rem); justify-content: center; gap: 3.5rem; }
+        .toc { position: sticky; top: 0; align-self: start; max-height: 100vh; overflow-y: auto; border: 0; padding: 2.5rem 0; }
+        .toc > ul { display: block; }
+        .toc li { margin: 0.2rem 0; }
+        .toc ul ul { display: block; margin: 0.2rem 0 0.6rem; padding-left: 0.85rem; border-left: 1px solid var(--line); }
+      }
+
+      h1 { display: flex; align-items: center; gap: 0.6rem; margin: 0; font-size: 2.25rem; letter-spacing: -0.02em; }
       h1 img { width: 2.25rem; height: 2.25rem; }
       .tagline { margin-top: 0.25rem; font-size: 1.125rem; }
-      h2 { margin-top: 3rem; }
-      a { color: var(--stepthru-accent); }
+      h2 { margin-top: 3.5rem; padding-top: 1rem; border-top: 1px solid var(--line); }
+      h3 { margin-top: 2.5rem; }
+      h4 { margin: 2rem 0 0.75rem; }
+
       pre, code { font: 0.875rem/1.5 ui-monospace, monospace; }
-      pre { overflow-x: auto; padding: 1rem; background: var(--soft); border: 1px solid var(--line); border-radius: 6px; }
+      :not(pre) > code { padding: 0.1em 0.3em; background: var(--soft); border-radius: 4px; }
+      pre:not(.stepthru-code) { overflow-x: auto; padding: 1rem; background: var(--soft); border: 1px solid var(--line); border-radius: 6px; }
+      table { display: block; overflow-x: auto; border-collapse: collapse; font-size: 0.9375rem; }
+      th, td { padding: 0.4rem 0.75rem; border: 1px solid var(--line); text-align: left; vertical-align: top; }
+      th { background: var(--soft); }
       details { margin-top: 0.75rem; }
       summary { cursor: pointer; }
+
+      .install { display: flex; align-items: center; gap: 0.5rem; }
+      .install pre { flex: 1; margin: 0; }
+      .install button {
+        min-height: 2.5rem; padding: 0 1rem; font: inherit; color: var(--ink); cursor: pointer;
+        background: var(--page); border: 1px solid var(--stepthru-muted); border-radius: 4px;
+      }
+      .install button:hover { border-color: var(--stepthru-accent); color: var(--stepthru-accent); }
+      button:focus-visible, a:focus-visible { outline: 2px solid var(--stepthru-accent); outline-offset: 2px; }
     </style>
   </head>
   <body>
-    <main>
-      <h1><img src="../brand/logo.svg" alt="" />stepthru</h1>
-      <p class="tagline">Trace the real code. Step through what it does.</p>
-      <p>Write the real algorithm, call tracer hooks inside it, and get a figure readers can play, pause and scrub, with a caption for every step.</p>
-      <p><a href="https://github.com/kamaterasu/stepthru">GitHub</a> · <a href="https://www.npmjs.com/package/stepthru">npm</a> · MIT</p>
-      <pre><code>npm install stepthru</code></pre>
-      <p>Click a figure, then use ← →, space, Home and End, or the buttons. Each figure's source is under it.</p>
-      <div id="app"></div>
-    </main>
+    <div class="layout">
+      <nav class="toc" aria-label="Contents"></nav>
+      <main>
+        <header id="top">
+          <h1><img src="../brand/logo.svg" alt="" />stepthru</h1>
+          <p class="tagline">Trace the real code. Step through what it does.</p>
+          <p>Write the real algorithm, call tracer hooks inside it, and get a figure readers can play, pause and scrub, with a caption for every step. No dependencies, accessible by keyboard and screen reader.</p>
+          <p><a href="https://github.com/kamaterasu/stepthru">GitHub</a> · <a href="https://www.npmjs.com/package/stepthru">npm</a> · <a href="https://github.com/kamaterasu/stepthru/blob/main/CHANGELOG.md">Changelog</a> · MIT</p>
+          <div class="install">
+            <pre><code>npm install stepthru</code></pre>
+            <button type="button" data-copy="npm install stepthru">Copy</button>
+          </div>
+        </header>
+        <section id="examples" aria-labelledby="examples-title">
+          <h2 id="examples-title">Examples</h2>
+          <p>Click a figure, then use ← →, space, Home and End, or the buttons. Each figure's full source is under it.</p>
+        </section>
+        <article class="guide"></article>
+      </main>
+    </div>
     <script type="module" src="./main.ts"></script>
   </body>
 </html>
