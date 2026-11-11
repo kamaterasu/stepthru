@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Breadth-first search visualized step by step | stepthru</title>
+    <meta name="description" content="Breadth-first search (BFS) visualized step by step: the queue, visited nodes and BFS tree edges, driven by real JavaScript code." />
+    <link rel="canonical" href="https://kamaterasu.github.io/stepthru/breadth-first-search/" />
+    <link rel="icon" type="image/svg+xml" href="../../brand/logo.svg" />
+    <meta property="og:type" content="article" />
+    <meta property="og:title" content="Breadth-first search, step by step" />
+    <meta property="og:description" content="Breadth-first search (BFS) visualized step by step: the queue, visited nodes and BFS tree edges, driven by real JavaScript code." />
+    <meta property="og:url" content="https://kamaterasu.github.io/stepthru/breadth-first-search/" />
+    <meta property="og:image" content="https://raw.githubusercontent.com/kamaterasu/stepthru/main/brand/social.png" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#13121a" media="(prefers-color-scheme: dark)" />
+    <link rel="stylesheet" href="../site.css" />
+    <script type="application/ld+json">{"@context": "https://schema.org", "@type": "TechArticle", "headline": "Breadth-first search, step by step", "description": "Breadth-first search (BFS) visualized step by step: the queue, visited nodes and BFS tree edges, driven by real JavaScript code.", "url": "https://kamaterasu.github.io/stepthru/breadth-first-search/", "about": "Breadth-first search", "isPartOf": {"@type": "WebSite", "name": "stepthru", "url": "https://kamaterasu.github.io/stepthru/"}}</script>
+  </head>
+  <body data-figure="breadth-first-search">
+    <div class="layout single">
+      <main>
+        <p class="crumbs"><a href="../">stepthru</a> › <a href="../#example-graphs">Graphs</a> › Breadth-first search</p>
+        <h1>Breadth-first search, step by step</h1>
+        <p class="lead">Breadth-first search visits a graph in rings: first the start node, then all nodes one edge away, then two edges away, and so on. A queue keeps that order.</p>
+        <div id="figure"></div>
+        <p>Click the figure, then use ← →, space, Home and End, or the buttons.</p>
+
+        <h2>How it works</h2>
+        <ol>
+          <li>Put the start node in the queue and mark it visited.</li>
+          <li>Take the node at the front of the queue.</li>
+          <li>For each neighbor not yet visited: mark it visited, mark the edge, and add it to the back of the queue.</li>
+          <li>Repeat until the queue is empty.</li>
+        </ol>
+
+        <h2>Cost</h2>
+        <dl class="facts">
+          <dt>Time</dt><dd>O(V + E): every node and edge is looked at once.</dd>
+          <dt>Space</dt><dd>O(V) for the queue and the visited set.</dd>
+          <dt>Finds</dt><dd>Shortest paths, by edge count, in unweighted graphs.</dd>
+        </dl>
+
+        <h2>The code behind this figure</h2>
+        <p>Nothing here is hand-animated. The figure comes from this code: a plain breadth-first search with <a href="../">stepthru</a> tracer calls, such as <code>compare</code> and <code>swap</code>, that record each step.</p>
+        <pre><code id="source"></code></pre>
+
+        <h2>Make your own</h2>
+        <pre><code>npm install stepthru</code></pre>
+        <p>Write the algorithm once, call the tracer hooks inside it, and get a figure like this one for your own post or course. <a href="../#guide">Read the guide</a>.</p>
+
+        <nav class="pager" aria-label="More algorithms"><a href="../binary-search/" rel="prev">← Binary search</a><a href="../depth-first-search/" rel="next">Depth-first search →</a></nav>
+      </main>
+    </div>
+    <script type="module" src="../algorithm.ts"></script>
+  </body>
+</html>

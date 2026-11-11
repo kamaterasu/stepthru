@@ -12,7 +12,8 @@
     "site": "vite build playground --base /stepthru/ --outDir ../site --emptyOutDir --assetsInlineLimit 0",
     "prepublishOnly": "npm run typecheck && npm test && npm run build && npm run smoke",
     "smoke": "node --input-type=module -e \"const { traceArray, toHTML } = await import('stepthru'); const t = traceArray([2, 1]); t.at(1); t.watch({ i: 0 }); t.swap(0, 1); const html = toHTML(t, { code: 'swap()' }); if (!t.view(t.steps[1].state).startsWith('<svg') || !html.includes('stepthru-code')) throw new Error('smoke test failed'); console.log('smoke ok');\"",
-    "coverage": "vitest run --coverage --coverage.include=src --coverage.reporter=text --coverage.reporter=html --coverage.reporter=json-summary"
+    "coverage": "vitest run --coverage --coverage.include=src --coverage.reporter=text --coverage.reporter=html --coverage.reporter=json-summary",
+    "demo": "npm run build && node scripts/demo.mjs"
   },
   "keywords": [
     "algorithm",
@@ -23,7 +24,18 @@
     "education",
     "sorting",
     "graph",
-    "tree"
+    "tree",
+    "visualizer",
+    "animation",
+    "data-structures",
+    "teaching",
+    "typescript",
+    "bfs",
+    "dfs",
+    "quicksort",
+    "bubble-sort",
+    "binary-search",
+    "algorithm-visualization"
   ],
   "license": "MIT",
   "devDependencies": {

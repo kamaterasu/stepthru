@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Depth-first search visualized step by step | stepthru</title>
+    <meta name="description" content="Depth-first search (DFS) visualized step by step: the call stack, visited nodes and DFS tree edges, driven by real recursive JavaScript code." />
+    <link rel="canonical" href="https://kamaterasu.github.io/stepthru/depth-first-search/" />
+    <link rel="icon" type="image/svg+xml" href="../../brand/logo.svg" />
+    <meta property="og:type" content="article" />
+    <meta property="og:title" content="Depth-first search, step by step" />
+    <meta property="og:description" content="Depth-first search (DFS) visualized step by step: the call stack, visited nodes and DFS tree edges, driven by real recursive JavaScript code." />
+    <meta property="og:url" content="https://kamaterasu.github.io/stepthru/depth-first-search/" />
+    <meta property="og:image" content="https://raw.githubusercontent.com/kamaterasu/stepthru/main/brand/social.png" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#13121a" media="(prefers-color-scheme: dark)" />
+    <link rel="stylesheet" href="../site.css" />
+    <script type="application/ld+json">{"@context": "https://schema.org", "@type": "TechArticle", "headline": "Depth-first search, step by step", "description": "Depth-first search (DFS) visualized step by step: the call stack, visited nodes and DFS tree edges, driven by real recursive JavaScript code.", "url": "https://kamaterasu.github.io/stepthru/depth-first-search/", "about": "Depth-first search", "isPartOf": {"@type": "WebSite", "name": "stepthru", "url": "https://kamaterasu.github.io/stepthru/"}}</script>
+  </head>
+  <body data-figure="depth-first-search">
+    <div class="layout single">
+      <main>
+        <p class="crumbs"><a href="../">stepthru</a> › <a href="../#example-graphs">Graphs</a> › Depth-first search</p>
+        <h1>Depth-first search, step by step</h1>
+        <p class="lead">Depth-first search follows one path as deep as it can, then backs up to the last node with an unvisited neighbor. This version is recursive; the figure draws its call stack.</p>
+        <div id="figure"></div>
+        <p>Click the figure, then use ← →, space, Home and End, or the buttons.</p>
+
+        <h2>How it works</h2>
+        <ol>
+          <li>Visit the start node.</li>
+          <li>Go to its first unvisited neighbor and visit it the same way.</li>
+          <li>When a node has no unvisited neighbors, return to the node that called it.</li>
+          <li>Done when the first call returns.</li>
+        </ol>
+
+        <h2>Cost</h2>
+        <dl class="facts">
+          <dt>Time</dt><dd>O(V + E).</dd>
+          <dt>Space</dt><dd>O(V) for the visited set and the call stack.</dd>
+          <dt>Used for</dt><dd>Cycle checks, topological order, connected parts, mazes.</dd>
+        </dl>
+
+        <h2>The code behind this figure</h2>
+        <p>Nothing here is hand-animated. The figure comes from this code: a plain depth-first search with <a href="../">stepthru</a> tracer calls, such as <code>compare</code> and <code>swap</code>, that record each step.</p>
+        <pre><code id="source"></code></pre>
+
+        <h2>Make your own</h2>
+        <pre><code>npm install stepthru</code></pre>
+        <p>Write the algorithm once, call the tracer hooks inside it, and get a figure like this one for your own post or course. <a href="../#guide">Read the guide</a>.</p>
+
+        <nav class="pager" aria-label="More algorithms"><a href="../breadth-first-search/" rel="prev">← Breadth-first search</a><a href="../binary-search-tree-insert/" rel="next">Binary search tree insert →</a></nav>
+      </main>
+    </div>
+    <script type="module" src="../algorithm.ts"></script>
+  </body>
+</html>

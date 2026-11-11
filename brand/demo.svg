@@ -1,0 +1,182 @@
+<svg xmlns="http://www.w3.org/2000/svg" class="stepthru-figure" width="336" height="210" viewBox="-4 0 224 140" role="img" aria-label="stepthru playing bubble sort on 5, 2, 8, 1, 9"><style>/* Defaults sit on :where(:root), which has zero specificity, so a host page wins
+   by setting any --stepthru-* variable on :root, a parent or .stepthru itself. */
+:where(:root) {
+  /* Brand palette (BRAND.md). Every pair meets WCAG AA in both themes. */
+  --stepthru-fg: #1b1a24;
+  --stepthru-bg: #ffffff;
+  --stepthru-muted: #767389;
+  --stepthru-accent: #5b3fd9;
+  --stepthru-done: #1d7a4f;
+}
+
+@media (prefers-color-scheme: dark) {
+  :where(:root) {
+    --stepthru-fg: #ecebf5;
+    --stepthru-bg: #13121a;
+    --stepthru-muted: #8e8aa6;
+    --stepthru-accent: #a594ff;
+    --stepthru-done: #4cc38a;
+  }
+}
+
+.stepthru {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr); /* without this the column grows to fit the controls and overflows phones */
+  align-content: start;
+  gap: 0.5rem;
+  color: var(--stepthru-fg);
+  background: var(--stepthru-bg);
+}
+
+.stepthru:focus-visible {
+  outline: 2px solid var(--stepthru-accent);
+  outline-offset: 2px;
+}
+
+.stepthru-figure svg {
+  /* Natural size, shrinking on narrow screens. Set width: 100% here to scale figures up. */
+  display: block;
+  max-width: 100%;
+  height: auto;
+  margin-inline: auto;
+  overflow: visible; /* strokes on edge shapes extend past the viewBox */
+}
+
+/* Views mark shapes with data-state. Fills stay light so values on top stay readable. */
+.stepthru-figure [data-state] {
+  fill: var(--stepthru-bg);
+  stroke: var(--stepthru-muted);
+  stroke-width: 1.5;
+}
+.stepthru-figure [data-state="active"] {
+  fill: color-mix(in srgb, var(--stepthru-accent) 25%, var(--stepthru-bg));
+  stroke: var(--stepthru-accent);
+  stroke-width: 3;
+}
+.stepthru-figure [data-state="moved"] {
+  fill: color-mix(in srgb, var(--stepthru-accent) 25%, var(--stepthru-bg));
+  stroke: var(--stepthru-accent);
+  stroke-width: 3;
+  stroke-dasharray: 6 3; /* dashed, so a swap differs from a compare without relying on color */
+}
+/* Shapes redraw every step, so a short fill-in on the ones the step touches stands in for a transition.
+   Marked shapes stay marked across steps, so they do not animate or they would flash every step. */
+@keyframes stepthru-in {
+  from { fill: var(--stepthru-bg); }
+}
+.stepthru-figure [data-state="active"],
+.stepthru-figure [data-state="moved"] {
+  animation: stepthru-in 250ms ease-out;
+}
+@media (prefers-reduced-motion: reduce) {
+  .stepthru-figure [data-state] { animation: none; }
+}
+.stepthru-figure [data-state="marked"] {
+  fill: color-mix(in srgb, var(--stepthru-done) 25%, var(--stepthru-bg));
+  stroke: var(--stepthru-done);
+}
+.stepthru-figure line[data-state="marked"] { stroke-width: 3; }
+.stepthru-figure [data-dim] { opacity: 0.35; }
+.stepthru-figure .stepthru-range {
+  fill: none;
+  stroke: var(--stepthru-accent);
+  stroke-width: 1.5;
+}
+.stepthru-figure text,
+.stepthru-figure .stepthru-pointer { fill: var(--stepthru-fg); }
+
+.stepthru-caption {
+  margin: 0;
+  min-height: 1.5em;
+}
+
+.stepthru-controls {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.stepthru-controls button {
+  display: inline-grid;
+  place-items: center;
+  min-width: 2.25rem;
+  min-height: 2.25rem;
+  padding: 0;
+  color: var(--stepthru-fg);
+  background: var(--stepthru-bg);
+  border: 1px solid var(--stepthru-muted);
+  border-radius: 4px;
+  cursor: pointer;
+}
+.stepthru-controls button:hover {
+  border-color: var(--stepthru-accent);
+  color: var(--stepthru-accent);
+}
+.stepthru-controls button:focus-visible,
+.stepthru-scrub:focus-visible {
+  outline: 2px solid var(--stepthru-accent);
+  outline-offset: 2px;
+}
+
+.stepthru-scrub {
+  flex: 1;
+  min-width: 0; /* browsers give range inputs a minimum width; let it shrink on phones */
+  accent-color: var(--stepthru-accent);
+}
+
+.stepthru-controls .stepthru-speed {
+  padding-inline: 0.4rem;
+  font: inherit;
+  font-variant-numeric: tabular-nums;
+}
+
+.stepthru-counter {
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+  color: var(--stepthru-muted);
+}
+
+.stepthru-vars {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem 1.25rem;
+  min-height: 1.5em; /* keeps the layout still when a step has no variables */
+  margin: 0;
+  font-family: ui-monospace, monospace;
+  font-size: 0.875em;
+}
+.stepthru-vars div { display: flex; gap: 0.4em; }
+.stepthru-vars dt { color: var(--stepthru-muted); }
+.stepthru-vars dt::after { content: " ="; }
+.stepthru-vars dd { margin: 0; }
+
+.stepthru-code {
+  position: relative; /* lines measure their offset from here, to scroll the current one into view */
+  max-height: 24em; /* long code scrolls inside the panel; the current line is kept in view */
+  margin: 0;
+  padding: 0.5rem 0;
+  overflow: auto;
+  font: 0.875em/1.6 ui-monospace, monospace;
+  border: 1px solid color-mix(in srgb, var(--stepthru-muted) 40%, var(--stepthru-bg));
+  border-radius: 4px;
+}
+/* One block per line, so the highlight spans the full width. */
+.stepthru-line {
+  display: block;
+  min-height: 1.6em;
+  padding: 0 0.75rem;
+}
+.stepthru-line.is-current {
+  background: color-mix(in srgb, var(--stepthru-accent) 24%, var(--stepthru-bg));
+  box-shadow: inset 3px 0 0 var(--stepthru-accent); /* a bar as well as a tint, so color is not the only signal */
+}
+
+.f { opacity: 0; animation-duration: 16.799999999999997s; animation-iteration-count: infinite; animation-timing-function: step-end; }
+g.f:first-of-type { opacity: 1; } /* the first frame, when animations are off */
+@keyframes show { 0% { opacity: 1; } 4.167% { opacity: 0; } 100% { opacity: 0; } }
+@keyframes hold { 0% { opacity: 1; } 20.833% { opacity: 0; } 100% { opacity: 0; } }
+text { font: 16px system-ui, sans-serif; }
+text[font-size="11"] { font-size: 11px; }
+.bg { fill: var(--stepthru-bg); stroke: color-mix(in srgb, var(--stepthru-muted) 40%, var(--stepthru-bg)); }
+.cap { fill: var(--stepthru-muted); font-size: 14px; }
+@media (prefers-reduced-motion: reduce) { .f { animation: none; } }</style><rect class="bg" x="-4" width="224" height="140" rx="8"/><g class="f" style="animation-name:show;animation-delay:0.00s"><g transform="translate(4 0)"><g transform="translate(0 0)"><g><rect data-state="idle" x="0" y="24" width="40" height="40" rx="4"/><text x="20" y="44" text-anchor="middle" dominant-baseline="central">5</text></g><g><rect data-state="idle" x="44" y="24" width="40" height="40" rx="4"/><text x="64" y="44" text-anchor="middle" dominant-baseline="central">2</text></g><g><rect data-state="idle" x="88" y="24" width="40" height="40" rx="4"/><text x="108" y="44" text-anchor="middle" dominant-baseline="central">8</text></g><g><rect data-state="idle" x="132" y="24" width="40" height="40" rx="4"/><text x="152" y="44" text-anchor="middle" dominant-baseline="central">1</text></g><g><rect data-state="idle" x="176" y="24" width="40" height="40" rx="4"/><text x="196" y="44" text-anchor="middle" dominant-baseline="central">9</text></g></g></g><text class="cap" x="112" y="120" text-anchor="middle">Bubble sort</text></g><g class="f" style="animation-name:show;animation-delay:0.70s"><g transform="translate(4 0)"><g transform="translate(0 0)"><g><rect data-state="active" x="0" y="24" width="40" height="40" rx="4"/><text x="20" y="44" text-anchor="middle" dominant-baseline="central">5</text></g><g><rect data-state="active" x="44" y="24" width="40" height="40" rx="4"/><text x="64" y="44" text-anchor="middle" dominant-baseline="central">2</text></g><g><rect data-state="idle" x="88" y="24" width="40" height="40" rx="4"/><text x="108" y="44" text-anchor="middle" dominant-baseline="central">8</text></g><g><rect data-state="idle" x="132" y="24" width="40" height="40" rx="4"/><text x="152" y="44" text-anchor="middle" dominant-baseline="central">1</text></g><g><rect data-state="idle" x="176" y="24" width="40" height="40" rx="4"/><text x="196" y="44" text-anchor="middle" dominant-baseline="central">9</text></g></g></g><text class="cap" x="112" y="120" text-anchor="middle">Compare 5 and 2</text></g><g class="f" style="animation-name:show;animation-delay:1.40s"><g transform="translate(4 0)"><g transform="translate(0 0)"><g><rect data-state="moved" x="0" y="24" width="40" height="40" rx="4"/><text x="20" y="44" text-anchor="middle" dominant-baseline="central">2</text></g><g><rect data-state="moved" x="44" y="24" width="40" height="40" rx="4"/><text x="64" y="44" text-anchor="middle" dominant-baseline="central">5</text></g><g><rect data-state="idle" x="88" y="24" width="40" height="40" rx="4"/><text x="108" y="44" text-anchor="middle" dominant-baseline="central">8</text></g><g><rect data-state="idle" x="132" y="24" width="40" height="40" rx="4"/><text x="152" y="44" text-anchor="middle" dominant-baseline="central">1</text></g><g><rect data-state="idle" x="176" y="24" width="40" height="40" rx="4"/><text x="196" y="44" text-anchor="middle" dominant-baseline="central">9</text></g></g></g><text class="cap" x="112" y="120" text-anchor="middle">Swap 5 and 2</text></g><g class="f" style="animation-name:show;animation-delay:2.10s"><g transform="translate(4 0)"><g transform="translate(0 0)"><g><rect data-state="idle" x="0" y="24" width="40" height="40" rx="4"/><text x="20" y="44" text-anchor="middle" dominant-baseline="central">2</text></g><g><rect data-state="active" x="44" y="24" width="40" height="40" rx="4"/><text x="64" y="44" text-anchor="middle" dominant-baseline="central">5</text></g><g><rect data-state="active" x="88" y="24" width="40" height="40" rx="4"/><text x="108" y="44" text-anchor="middle" dominant-baseline="central">8</text></g><g><rect data-state="idle" x="132" y="24" width="40" height="40" rx="4"/><text x="152" y="44" text-anchor="middle" dominant-baseline="central">1</text></g><g><rect data-state="idle" x="176" y="24" width="40" height="40" rx="4"/><text x="196" y="44" text-anchor="middle" dominant-baseline="central">9</text></g></g></g><text class="cap" x="112" y="120" text-anchor="middle">Compare 5 and 8</text></g><g class="f" style="animation-name:show;animation-delay:2.80s"><g transform="translate(4 0)"><g transform="translate(0 0)"><g><rect data-state="idle" x="0" y="24" width="40" height="40" rx="4"/><text x="20" y="44" text-anchor="middle" dominant-baseline="central">2</text></g><g><rect data-state="idle" x="44" y="24" width="40" height="40" rx="4"/><text x="64" y="44" text-anchor="middle" dominant-baseline="central">5</text></g><g><rect data-state="active" x="88" y="24" width="40" height="40" rx="4"/><text x="108" y="44" text-anchor="middle" dominant-baseline="central">8</text></g><g><rect data-state="active" x="132" y="24" width="40" height="40" rx="4"/><text x="152" y="44" text-anchor="middle" dominant-baseline="central">1</text></g><g><rect data-state="idle" x="176" y="24" width="40" height="40" rx="4"/><text x="196" y="44" text-anchor="middle" dominant-baseline="central">9</text></g></g></g><text class="cap" x="112" y="120" text-anchor="middle">Compare 8 and 1</text></g><g class="f" style="animation-name:show;animation-delay:3.50s"><g transform="translate(4 0)"><g transform="translate(0 0)"><g><rect data-state="idle" x="0" y="24" width="40" height="40" rx="4"/><text x="20" y="44" text-anchor="middle" dominant-baseline="central">2</text></g><g><rect data-state="idle" x="44" y="24" width="40" height="40" rx="4"/><text x="64" y="44" text-anchor="middle" dominant-baseline="central">5</text></g><g><rect data-state="moved" x="88" y="24" width="40" height="40" rx="4"/><text x="108" y="44" text-anchor="middle" dominant-baseline="central">1</text></g><g><rect data-state="moved" x="132" y="24" width="40" height="40" rx="4"/><text x="152" y="44" text-anchor="middle" dominant-baseline="central">8</text></g><g><rect data-state="idle" x="176" y="24" width="40" height="40" rx="4"/><text x="196" y="44" text-anchor="middle" dominant-baseline="central">9</text></g></g></g><text class="cap" x="112" y="120" text-anchor="middle">Swap 8 and 1</text></g><g class="f" style="animation-name:show;animation-delay:4.20s"><g transform="translate(4 0)"><g transform="translate(0 0)"><g><rect data-state="idle" x="0" y="24" width="40" height="40" rx="4"/><text x="20" y="44" text-anchor="middle" dominant-baseline="central">2</text></g><g><rect data-state="idle" x="44" y="24" width="40" height="40" rx="4"/><text x="64" y="44" text-anchor="middle" dominant-baseline="central">5</text></g><g><rect data-state="idle" x="88" y="24" width="40" height="40" rx="4"/><text x="108" y="44" text-anchor="middle" dominant-baseline="central">1</text></g><g><rect data-state="active" x="132" y="24" width="40" height="40" rx="4"/><text x="152" y="44" text-anchor="middle" dominant-baseline="central">8</text></g><g><rect data-state="active" x="176" y="24" width="40" height="40" rx="4"/><text x="196" y="44" text-anchor="middle" dominant-baseline="central">9</text></g></g></g><text class="cap" x="112" y="120" text-anchor="middle">Compare 8 and 9</text></g><g class="f" style="animation-name:show;animation-delay:4.90s"><g transform="translate(4 0)"><g transform="translate(0 0)"><g><rect data-state="idle" x="0" y="24" width="40" height="40" rx="4"/><text x="20" y="44" text-anchor="middle" dominant-baseline="central">2</text></g><g><rect data-state="idle" x="44" y="24" width="40" height="40" rx="4"/><text x="64" y="44" text-anchor="middle" dominant-baseline="central">5</text></g><g><rect data-state="idle" x="88" y="24" width="40" height="40" rx="4"/><text x="108" y="44" text-anchor="middle" dominant-baseline="central">1</text></g><g><rect data-state="idle" x="132" y="24" width="40" height="40" rx="4"/><text x="152" y="44" text-anchor="middle" dominant-baseline="central">8</text></g><g><rect data-state="active" x="176" y="24" width="40" height="40" rx="4"/><text x="196" y="44" text-anchor="middle" dominant-baseline="central">9</text></g></g></g><text class="cap" x="112" y="120" text-anchor="middle">9 is sorted</text></g><g class="f" style="animation-name:show;animation-delay:5.60s"><g transform="translate(4 0)"><g transform="translate(0 0)"><g><rect data-state="active" x="0" y="24" width="40" height="40" rx="4"/><text x="20" y="44" text-anchor="middle" dominant-baseline="central">2</text></g><g><rect data-state="active" x="44" y="24" width="40" height="40" rx="4"/><text x="64" y="44" text-anchor="middle" dominant-baseline="central">5</text></g><g><rect data-state="idle" x="88" y="24" width="40" height="40" rx="4"/><text x="108" y="44" text-anchor="middle" dominant-baseline="central">1</text></g><g><rect data-state="idle" x="132" y="24" width="40" height="40" rx="4"/><text x="152" y="44" text-anchor="middle" dominant-baseline="central">8</text></g><g><rect data-state="marked" x="176" y="24" width="40" height="40" rx="4"/><text x="196" y="44" text-anchor="middle" dominant-baseline="central">9</text></g></g></g><text class="cap" x="112" y="120" text-anchor="middle">Compare 2 and 5</text></g><g class="f" style="animation-name:show;animation-delay:6.30s"><g transform="translate(4 0)"><g transform="translate(0 0)"><g><rect data-state="idle" x="0" y="24" width="40" height="40" rx="4"/><text x="20" y="44" text-anchor="middle" dominant-baseline="central">2</text></g><g><rect data-state="active" x="44" y="24" width="40" height="40" rx="4"/><text x="64" y="44" text-anchor="middle" dominant-baseline="central">5</text></g><g><rect data-state="active" x="88" y="24" width="40" height="40" rx="4"/><text x="108" y="44" text-anchor="middle" dominant-baseline="central">1</text></g><g><rect data-state="idle" x="132" y="24" width="40" height="40" rx="4"/><text x="152" y="44" text-anchor="middle" dominant-baseline="central">8</text></g><g><rect data-state="marked" x="176" y="24" width="40" height="40" rx="4"/><text x="196" y="44" text-anchor="middle" dominant-baseline="central">9</text></g></g></g><text class="cap" x="112" y="120" text-anchor="middle">Compare 5 and 1</text></g><g class="f" style="animation-name:show;animation-delay:7.00s"><g transform="translate(4 0)"><g transform="translate(0 0)"><g><rect data-state="idle" x="0" y="24" width="40" height="40" rx="4"/><text x="20" y="44" text-anchor="middle" dominant-baseline="central">2</text></g><g><rect data-state="moved" x="44" y="24" width="40" height="40" rx="4"/><text x="64" y="44" text-anchor="middle" dominant-baseline="central">1</text></g><g><rect data-state="moved" x="88" y="24" width="40" height="40" rx="4"/><text x="108" y="44" text-anchor="middle" dominant-baseline="central">5</text></g><g><rect data-state="idle" x="132" y="24" width="40" height="40" rx="4"/><text x="152" y="44" text-anchor="middle" dominant-baseline="central">8</text></g><g><rect data-state="marked" x="176" y="24" width="40" height="40" rx="4"/><text x="196" y="44" text-anchor="middle" dominant-baseline="central">9</text></g></g></g><text class="cap" x="112" y="120" text-anchor="middle">Swap 5 and 1</text></g><g class="f" style="animation-name:show;animation-delay:7.70s"><g transform="translate(4 0)"><g transform="translate(0 0)"><g><rect data-state="idle" x="0" y="24" width="40" height="40" rx="4"/><text x="20" y="44" text-anchor="middle" dominant-baseline="central">2</text></g><g><rect data-state="idle" x="44" y="24" width="40" height="40" rx="4"/><text x="64" y="44" text-anchor="middle" dominant-baseline="central">1</text></g><g><rect data-state="active" x="88" y="24" width="40" height="40" rx="4"/><text x="108" y="44" text-anchor="middle" dominant-baseline="central">5</text></g><g><rect data-state="active" x="132" y="24" width="40" height="40" rx="4"/><text x="152" y="44" text-anchor="middle" dominant-baseline="central">8</text></g><g><rect data-state="marked" x="176" y="24" width="40" height="40" rx="4"/><text x="196" y="44" text-anchor="middle" dominant-baseline="central">9</text></g></g></g><text class="cap" x="112" y="120" text-anchor="middle">Compare 5 and 8</text></g><g class="f" style="animation-name:show;animation-delay:8.40s"><g transform="translate(4 0)"><g transform="translate(0 0)"><g><rect data-state="idle" x="0" y="24" width="40" height="40" rx="4"/><text x="20" y="44" text-anchor="middle" dominant-baseline="central">2</text></g><g><rect data-state="idle" x="44" y="24" width="40" height="40" rx="4"/><text x="64" y="44" text-anchor="middle" dominant-baseline="central">1</text></g><g><rect data-state="idle" x="88" y="24" width="40" height="40" rx="4"/><text x="108" y="44" text-anchor="middle" dominant-baseline="central">5</text></g><g><rect data-state="active" x="132" y="24" width="40" height="40" rx="4"/><text x="152" y="44" text-anchor="middle" dominant-baseline="central">8</text></g><g><rect data-state="marked" x="176" y="24" width="40" height="40" rx="4"/><text x="196" y="44" text-anchor="middle" dominant-baseline="central">9</text></g></g></g><text class="cap" x="112" y="120" text-anchor="middle">8 is sorted</text></g><g class="f" style="animation-name:show;animation-delay:9.10s"><g transform="translate(4 0)"><g transform="translate(0 0)"><g><rect data-state="active" x="0" y="24" width="40" height="40" rx="4"/><text x="20" y="44" text-anchor="middle" dominant-baseline="central">2</text></g><g><rect data-state="active" x="44" y="24" width="40" height="40" rx="4"/><text x="64" y="44" text-anchor="middle" dominant-baseline="central">1</text></g><g><rect data-state="idle" x="88" y="24" width="40" height="40" rx="4"/><text x="108" y="44" text-anchor="middle" dominant-baseline="central">5</text></g><g><rect data-state="marked" x="132" y="24" width="40" height="40" rx="4"/><text x="152" y="44" text-anchor="middle" dominant-baseline="central">8</text></g><g><rect data-state="marked" x="176" y="24" width="40" height="40" rx="4"/><text x="196" y="44" text-anchor="middle" dominant-baseline="central">9</text></g></g></g><text class="cap" x="112" y="120" text-anchor="middle">Compare 2 and 1</text></g><g class="f" style="animation-name:show;animation-delay:9.80s"><g transform="translate(4 0)"><g transform="translate(0 0)"><g><rect data-state="moved" x="0" y="24" width="40" height="40" rx="4"/><text x="20" y="44" text-anchor="middle" dominant-baseline="central">1</text></g><g><rect data-state="moved" x="44" y="24" width="40" height="40" rx="4"/><text x="64" y="44" text-anchor="middle" dominant-baseline="central">2</text></g><g><rect data-state="idle" x="88" y="24" width="40" height="40" rx="4"/><text x="108" y="44" text-anchor="middle" dominant-baseline="central">5</text></g><g><rect data-state="marked" x="132" y="24" width="40" height="40" rx="4"/><text x="152" y="44" text-anchor="middle" dominant-baseline="central">8</text></g><g><rect data-state="marked" x="176" y="24" width="40" height="40" rx="4"/><text x="196" y="44" text-anchor="middle" dominant-baseline="central">9</text></g></g></g><text class="cap" x="112" y="120" text-anchor="middle">Swap 2 and 1</text></g><g class="f" style="animation-name:show;animation-delay:10.50s"><g transform="translate(4 0)"><g transform="translate(0 0)"><g><rect data-state="idle" x="0" y="24" width="40" height="40" rx="4"/><text x="20" y="44" text-anchor="middle" dominant-baseline="central">1</text></g><g><rect data-state="active" x="44" y="24" width="40" height="40" rx="4"/><text x="64" y="44" text-anchor="middle" dominant-baseline="central">2</text></g><g><rect data-state="active" x="88" y="24" width="40" height="40" rx="4"/><text x="108" y="44" text-anchor="middle" dominant-baseline="central">5</text></g><g><rect data-state="marked" x="132" y="24" width="40" height="40" rx="4"/><text x="152" y="44" text-anchor="middle" dominant-baseline="central">8</text></g><g><rect data-state="marked" x="176" y="24" width="40" height="40" rx="4"/><text x="196" y="44" text-anchor="middle" dominant-baseline="central">9</text></g></g></g><text class="cap" x="112" y="120" text-anchor="middle">Compare 2 and 5</text></g><g class="f" style="animation-name:show;animation-delay:11.20s"><g transform="translate(4 0)"><g transform="translate(0 0)"><g><rect data-state="idle" x="0" y="24" width="40" height="40" rx="4"/><text x="20" y="44" text-anchor="middle" dominant-baseline="central">1</text></g><g><rect data-state="idle" x="44" y="24" width="40" height="40" rx="4"/><text x="64" y="44" text-anchor="middle" dominant-baseline="central">2</text></g><g><rect data-state="active" x="88" y="24" width="40" height="40" rx="4"/><text x="108" y="44" text-anchor="middle" dominant-baseline="central">5</text></g><g><rect data-state="marked" x="132" y="24" width="40" height="40" rx="4"/><text x="152" y="44" text-anchor="middle" dominant-baseline="central">8</text></g><g><rect data-state="marked" x="176" y="24" width="40" height="40" rx="4"/><text x="196" y="44" text-anchor="middle" dominant-baseline="central">9</text></g></g></g><text class="cap" x="112" y="120" text-anchor="middle">5 is sorted</text></g><g class="f" style="animation-name:show;animation-delay:11.90s"><g transform="translate(4 0)"><g transform="translate(0 0)"><g><rect data-state="active" x="0" y="24" width="40" height="40" rx="4"/><text x="20" y="44" text-anchor="middle" dominant-baseline="central">1</text></g><g><rect data-state="active" x="44" y="24" width="40" height="40" rx="4"/><text x="64" y="44" text-anchor="middle" dominant-baseline="central">2</text></g><g><rect data-state="marked" x="88" y="24" width="40" height="40" rx="4"/><text x="108" y="44" text-anchor="middle" dominant-baseline="central">5</text></g><g><rect data-state="marked" x="132" y="24" width="40" height="40" rx="4"/><text x="152" y="44" text-anchor="middle" dominant-baseline="central">8</text></g><g><rect data-state="marked" x="176" y="24" width="40" height="40" rx="4"/><text x="196" y="44" text-anchor="middle" dominant-baseline="central">9</text></g></g></g><text class="cap" x="112" y="120" text-anchor="middle">Compare 1 and 2</text></g><g class="f" style="animation-name:show;animation-delay:12.60s"><g transform="translate(4 0)"><g transform="translate(0 0)"><g><rect data-state="idle" x="0" y="24" width="40" height="40" rx="4"/><text x="20" y="44" text-anchor="middle" dominant-baseline="central">1</text></g><g><rect data-state="active" x="44" y="24" width="40" height="40" rx="4"/><text x="64" y="44" text-anchor="middle" dominant-baseline="central">2</text></g><g><rect data-state="marked" x="88" y="24" width="40" height="40" rx="4"/><text x="108" y="44" text-anchor="middle" dominant-baseline="central">5</text></g><g><rect data-state="marked" x="132" y="24" width="40" height="40" rx="4"/><text x="152" y="44" text-anchor="middle" dominant-baseline="central">8</text></g><g><rect data-state="marked" x="176" y="24" width="40" height="40" rx="4"/><text x="196" y="44" text-anchor="middle" dominant-baseline="central">9</text></g></g></g><text class="cap" x="112" y="120" text-anchor="middle">2 is sorted</text></g><g class="f" style="animation-name:hold;animation-delay:13.30s"><g transform="translate(4 0)"><g transform="translate(0 0)"><g><rect data-state="active" x="0" y="24" width="40" height="40" rx="4"/><text x="20" y="44" text-anchor="middle" dominant-baseline="central">1</text></g><g><rect data-state="marked" x="44" y="24" width="40" height="40" rx="4"/><text x="64" y="44" text-anchor="middle" dominant-baseline="central">2</text></g><g><rect data-state="marked" x="88" y="24" width="40" height="40" rx="4"/><text x="108" y="44" text-anchor="middle" dominant-baseline="central">5</text></g><g><rect data-state="marked" x="132" y="24" width="40" height="40" rx="4"/><text x="152" y="44" text-anchor="middle" dominant-baseline="central">8</text></g><g><rect data-state="marked" x="176" y="24" width="40" height="40" rx="4"/><text x="196" y="44" text-anchor="middle" dominant-baseline="central">9</text></g></g></g><text class="cap" x="112" y="120" text-anchor="middle">1 is sorted</text></g></svg>

@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Binary search visualized step by step | stepthru</title>
+    <meta name="description" content="Binary search visualized step by step: the search range, the middle pointer and each compare, driven by real JavaScript code. O(log n) explained." />
+    <link rel="canonical" href="https://kamaterasu.github.io/stepthru/binary-search/" />
+    <link rel="icon" type="image/svg+xml" href="../../brand/logo.svg" />
+    <meta property="og:type" content="article" />
+    <meta property="og:title" content="Binary search, step by step" />
+    <meta property="og:description" content="Binary search visualized step by step: the search range, the middle pointer and each compare, driven by real JavaScript code. O(log n) explained." />
+    <meta property="og:url" content="https://kamaterasu.github.io/stepthru/binary-search/" />
+    <meta property="og:image" content="https://raw.githubusercontent.com/kamaterasu/stepthru/main/brand/social.png" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#13121a" media="(prefers-color-scheme: dark)" />
+    <link rel="stylesheet" href="../site.css" />
+    <script type="application/ld+json">{"@context": "https://schema.org", "@type": "TechArticle", "headline": "Binary search, step by step", "description": "Binary search visualized step by step: the search range, the middle pointer and each compare, driven by real JavaScript code. O(log n) explained.", "url": "https://kamaterasu.github.io/stepthru/binary-search/", "about": "Binary search", "isPartOf": {"@type": "WebSite", "name": "stepthru", "url": "https://kamaterasu.github.io/stepthru/"}}</script>
+  </head>
+  <body data-figure="binary-search">
+    <div class="layout single">
+      <main>
+        <p class="crumbs"><a href="../">stepthru</a> › <a href="../#example-arrays">Arrays</a> › Binary search</p>
+        <h1>Binary search, step by step</h1>
+        <p class="lead">Binary search finds a value in a sorted array by looking at the middle and throwing away the half that cannot hold it. Each step halves the range.</p>
+        <div id="figure"></div>
+        <p>Click the figure, then use ← →, space, Home and End, or the buttons.</p>
+
+        <h2>How it works</h2>
+        <ol>
+          <li>Search the whole array: lo is the first index, hi the last.</li>
+          <li>Look at the middle index, mid.</li>
+          <li>If the value at mid is the target, stop.</li>
+          <li>If it is smaller, search right of mid. If larger, search left of mid.</li>
+          <li>When lo passes hi, the target is not in the array.</li>
+        </ol>
+
+        <h2>Cost</h2>
+        <dl class="facts">
+          <dt>Time</dt><dd>O(log n). Best case O(1) when the middle is the target.</dd>
+          <dt>Space</dt><dd>O(1) for this loop version.</dd>
+          <dt>Needs</dt><dd>A sorted array.</dd>
+        </dl>
+
+        <h2>The code behind this figure</h2>
+        <p>Nothing here is hand-animated. The figure comes from this code: a plain binary search with <a href="../">stepthru</a> tracer calls, such as <code>compare</code> and <code>swap</code>, that record each step.</p>
+        <pre><code id="source"></code></pre>
+
+        <h2>Make your own</h2>
+        <pre><code>npm install stepthru</code></pre>
+        <p>Write the algorithm once, call the tracer hooks inside it, and get a figure like this one for your own post or course. <a href="../#guide">Read the guide</a>.</p>
+
+        <nav class="pager" aria-label="More algorithms"><a href="../quicksort/" rel="prev">← Quicksort</a><a href="../breadth-first-search/" rel="next">Breadth-first search →</a></nav>
+      </main>
+    </div>
+    <script type="module" src="../algorithm.ts"></script>
+  </body>
+</html>

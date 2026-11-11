@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Quicksort visualized step by step | stepthru</title>
+    <meta name="description" content="Watch quicksort with the Lomuto partition step by step: pivot, compares, swaps and recursive ranges, driven by real JavaScript code." />
+    <link rel="canonical" href="https://kamaterasu.github.io/stepthru/quicksort/" />
+    <link rel="icon" type="image/svg+xml" href="../../brand/logo.svg" />
+    <meta property="og:type" content="article" />
+    <meta property="og:title" content="Quicksort, step by step" />
+    <meta property="og:description" content="Watch quicksort with the Lomuto partition step by step: pivot, compares, swaps and recursive ranges, driven by real JavaScript code." />
+    <meta property="og:url" content="https://kamaterasu.github.io/stepthru/quicksort/" />
+    <meta property="og:image" content="https://raw.githubusercontent.com/kamaterasu/stepthru/main/brand/social.png" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#13121a" media="(prefers-color-scheme: dark)" />
+    <link rel="stylesheet" href="../site.css" />
+    <script type="application/ld+json">{"@context": "https://schema.org", "@type": "TechArticle", "headline": "Quicksort, step by step", "description": "Watch quicksort with the Lomuto partition step by step: pivot, compares, swaps and recursive ranges, driven by real JavaScript code.", "url": "https://kamaterasu.github.io/stepthru/quicksort/", "about": "Quicksort", "isPartOf": {"@type": "WebSite", "name": "stepthru", "url": "https://kamaterasu.github.io/stepthru/"}}</script>
+  </head>
+  <body data-figure="quicksort">
+    <div class="layout single">
+      <main>
+        <p class="crumbs"><a href="../">stepthru</a> › <a href="../#example-arrays">Arrays</a> › Quicksort</p>
+        <h1>Quicksort, step by step</h1>
+        <p class="lead">Quicksort picks a pivot, moves every smaller value to its left, puts the pivot in its final place, then sorts the two sides the same way. This version uses the Lomuto partition with the last value as the pivot.</p>
+        <div id="figure"></div>
+        <p>Click the figure, then use ← →, space, Home and End, or the buttons.</p>
+
+        <h2>How it works</h2>
+        <ol>
+          <li>Take the last value in the range as the pivot.</li>
+          <li>Walk the range. Each value smaller than the pivot is swapped into the left part.</li>
+          <li>Swap the pivot just after the left part. It is now in its final place.</li>
+          <li>Sort the part left of the pivot, then the part right of it.</li>
+        </ol>
+
+        <h2>Cost</h2>
+        <dl class="facts">
+          <dt>Time</dt><dd>O(n log n) on average. O(n²) when the pivot is always the smallest or largest, such as sorted input here.</dd>
+          <dt>Space</dt><dd>O(log n) stack on average, O(n) in the worst case.</dd>
+          <dt>Stable</dt><dd>No.</dd>
+        </dl>
+
+        <h2>The code behind this figure</h2>
+        <p>Nothing here is hand-animated. The figure comes from this code: a plain quicksort with <a href="../">stepthru</a> tracer calls, such as <code>compare</code> and <code>swap</code>, that record each step.</p>
+        <pre><code id="source"></code></pre>
+
+        <h2>Make your own</h2>
+        <pre><code>npm install stepthru</code></pre>
+        <p>Write the algorithm once, call the tracer hooks inside it, and get a figure like this one for your own post or course. <a href="../#guide">Read the guide</a>.</p>
+
+        <nav class="pager" aria-label="More algorithms"><a href="../bubble-sort/" rel="prev">← Bubble sort</a><a href="../binary-search/" rel="next">Binary search →</a></nav>
+      </main>
+    </div>
+    <script type="module" src="../algorithm.ts"></script>
+  </body>
+</html>

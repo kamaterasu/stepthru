@@ -1,19 +1,7 @@
 import { marked } from "marked";
-import { render, type RenderOptions, type Trace } from "../src/index";
 import "../src/styles/theme.css";
-import { bfs } from "../examples/bfs";
-import bfsSource from "../examples/bfs.ts?raw";
-import { binarySearch, binarySearchCode } from "../examples/binary-search";
-import binarySearchSource from "../examples/binary-search.ts?raw";
-import { bstInsert, inOrder } from "../examples/bst";
-import bstSource from "../examples/bst.ts?raw";
-import { bubbleSort, bubbleSortCode } from "../examples/bubble-sort";
-import bubbleSortSource from "../examples/bubble-sort.ts?raw";
-import { dfs } from "../examples/dfs";
-import dfsSource from "../examples/dfs.ts?raw";
-import { quickSort } from "../examples/quicksort";
-import quickSortSource from "../examples/quicksort.ts?raw";
 import readme from "../README.md?raw";
+import { FIGURES } from "./figures";
 
 const slug = (text: string) => text.toLowerCase().replace(/<[^>]+>/g, "").replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
 
@@ -23,41 +11,21 @@ function el<K extends keyof HTMLElementTagNameMap>(tag: K, props: Partial<HTMLEl
   return node;
 }
 
-// Examples
+// Examples, grouped, each linking to its own page.
 
 const examples = document.querySelector("#examples")!;
-
-function group(title: string) {
-  examples.append(el("h3", { id: `example-${slug(title)}`, textContent: title }));
-}
-
-function show<S>(title: string, trace: Trace<S>, source: string, options: RenderOptions<S> = {}) {
+let group = "";
+for (const f of FIGURES) {
+  if (f.group !== group) {
+    group = f.group;
+    examples.append(el("h3", { id: `example-${slug(group)}`, textContent: group }));
+  }
   const figure = el("div");
-  const details = el("details", {}, el("summary", { textContent: "Full source" }), el("pre", { textContent: source }));
-  examples.append(el("h4", { id: `example-${slug(title)}`, textContent: title }), figure, details);
-  render(trace, figure, options);
+  const details = el("details", {}, el("summary", { textContent: "Full source" }), el("pre", { textContent: f.source }));
+  const more = el("p", {}, el("a", { href: `${f.slug}/`, textContent: `${f.title}, step by step: how it works and its cost →` }));
+  examples.append(el("h4", { id: `example-${slug(f.title)}`, textContent: f.title }), figure, details, more);
+  f.mount(figure);
 }
-
-const graph = {
-  nodes: ["A", "B", "C", "D", "E", "F"],
-  edges: [["A", "B"], ["A", "C"], ["B", "D"], ["C", "D"], ["C", "E"], ["D", "F"]] as [string, string][],
-};
-const tree = {
-  value: 8,
-  left: { value: 3, left: { value: 1 }, right: { value: 6, left: { value: 4 }, right: { value: 7 } } },
-  right: { value: 10, right: { value: 14, left: { value: 13 } } },
-};
-
-group("Arrays");
-show("Bubble sort", bubbleSort([5, 2, 8, 1, 9, 3]), bubbleSortSource, { code: bubbleSortCode });
-show("Quicksort", quickSort([7, 2, 9, 4, 1, 8, 3]), quickSortSource);
-show("Binary search", binarySearch([1, 3, 5, 7, 9, 11, 13], 9), binarySearchSource, { code: binarySearchCode });
-group("Graphs");
-show("Breadth-first search", bfs(graph, "A"), bfsSource);
-show("Depth-first search", dfs(graph, "A"), dfsSource);
-group("Trees");
-show("Binary search tree: insert", bstInsert([8, 3, 10, 1, 6, 14, 4, 7, 13]), bstSource);
-show("In-order traversal", inOrder(tree), bstSource);
 
 // Guide: the README's user-facing sections, so the site and the README never disagree.
 // Its ## headings become h3 under "Guide", and ### become h4.

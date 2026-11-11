@@ -2,6 +2,15 @@
 
 **Trace the real code. Step through what it does.**
 
+[![npm](https://img.shields.io/npm/v/stepthru)](https://www.npmjs.com/package/stepthru)
+[![CI](https://github.com/kamaterasu/stepthru/actions/workflows/ci.yml/badge.svg)](https://github.com/kamaterasu/stepthru/actions/workflows/ci.yml)
+[![coverage](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fkamaterasu.github.io%2Fstepthru%2Fcoverage%2Fcoverage-summary.json&query=%24.total.lines.pct&suffix=%25&label=coverage)](https://kamaterasu.github.io/stepthru/coverage/)
+[![size](https://img.shields.io/bundlephobia/minzip/stepthru)](https://bundlephobia.com/package/stepthru)
+![dependencies](https://img.shields.io/badge/dependencies-0-brightgreen)
+[![license](https://img.shields.io/npm/l/stepthru)](LICENSE)
+
+<a href="https://kamaterasu.github.io/stepthru/"><img src="https://raw.githubusercontent.com/kamaterasu/stepthru/main/brand/demo.svg" width="420" alt="A stepthru figure playing bubble sort on 5, 2, 8, 1, 9, with a caption for each step"></a>
+
 Step-through algorithm figures. Write the real algorithm, call tracer hooks inside it, and stepthru records each step and plays it back as an SVG figure that readers can play, pause and scrub, with a caption for every step.
 
 **Demo and examples:** https://kamaterasu.github.io/stepthru/
@@ -204,6 +213,7 @@ const view = (s: { name: string }) => `<svg width="80" height="40"><text x="10" 
 npm install
 npm run play       # playground with every example
 npm run coverage   # tests with a coverage report in coverage/
+npm run demo       # rebuild brand/demo.svg, the animated figure in this README
 npm test           # unit and acceptance tests
 npm run typecheck
 npm run build
