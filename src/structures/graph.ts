@@ -58,6 +58,7 @@ function adjacency({ nodes, edges }: GraphInput): Map<string, string[]> {
   }
   for (const [u, v] of edges) {
     if (!adj.has(u) || !adj.has(v)) throw new RangeError(`edge ${u}-${v} uses an unknown node`);
+    if (u === v) throw new RangeError(`edge ${u}-${v} is a loop; graphs are simple`);
     adj.get(u)!.push(v);
     adj.get(v)!.push(u);
   }
@@ -93,16 +94,21 @@ export function traceGraph(input: GraphInput, caption = ""): GraphTrace {
     s.list = own;
     step(kind, caption ?? `Start a ${kind}: ${items.join(", ") || "empty"}`);
     const [add, take] = WORDS[kind];
+    const live = () => {
+      if (s.list !== own) throw new RangeError(`this ${kind} was replaced by a newer queue or stack`);
+    };
     return {
       get length() {
         return own.items.length;
       },
       push(id: string, caption?: string) {
+        live();
         check(id);
         own.items.push(id);
         step("push", caption ?? `${add} ${id}`);
       },
       take(caption?: string) {
+        live();
         const id = kind === "queue" ? own.items.shift() : own.items.pop();
         if (id === undefined) throw new RangeError(`the ${kind} is empty`);
         s.current = id;

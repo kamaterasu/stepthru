@@ -29,4 +29,13 @@ describe("fitTo", () => {
     fitTo(svg, [100, 40], [140, 60]);
     expect(["width", "height", "viewBox"].map((a) => svg.getAttribute(a))).toEqual(["140", "60", "-20 0 140 60"]);
   });
+
+  test("keeps a view's own viewBox origin", () => {
+    const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+    svg.setAttribute("viewBox", "-50 -25 100 50");
+    fitTo(svg, [100, 50], [100, 50]);
+    expect(svg.getAttribute("viewBox")).toBe("-50 -25 100 50");
+    fitTo(svg, [100, 50], [200, 60]);
+    expect(svg.getAttribute("viewBox")).toBe("-100 -25 200 60");
+  });
 });

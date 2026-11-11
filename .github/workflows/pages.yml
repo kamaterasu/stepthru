@@ -24,6 +24,8 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm run site
+      # After the site build, which empties site/. The page links to this report.
+      - run: npm run coverage -- --coverage.reportsDirectory=site/coverage
       - uses: actions/upload-pages-artifact@v4
         with:
           path: site

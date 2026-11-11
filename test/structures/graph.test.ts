@@ -29,6 +29,7 @@ describe("traceGraph", () => {
     expect(() => traceGraph({ nodes: [], edges: [] })).toThrow(RangeError);
     expect(() => traceGraph({ nodes: ["A", "A"], edges: [] })).toThrow("duplicate node A");
     expect(() => traceGraph({ nodes: ["A"], edges: [["A", "Z"]] })).toThrow("unknown node");
+    expect(() => traceGraph({ nodes: ["A"], edges: [["A", "A"]] })).toThrow("loop");
   });
 
   test("rejects unknown nodes and missing edges in hooks", () => {
@@ -99,6 +100,14 @@ describe("traceGraph", () => {
     const t = traceGraph(input);
     expect(() => t.queue(["Z"])).toThrow(RangeError);
     expect(() => t.stack().push("Z")).toThrow(RangeError);
+  });
+
+  test("a replaced list throws instead of recording steps nobody sees", () => {
+    const t = traceGraph(input);
+    const q = t.queue(["A"]);
+    t.stack();
+    expect(() => q.push("B")).toThrow("replaced");
+    expect(() => q.shift()).toThrow("replaced");
   });
 });
 

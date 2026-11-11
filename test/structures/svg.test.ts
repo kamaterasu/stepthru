@@ -48,3 +48,12 @@ describe("frame", () => {
     expect(svg.querySelector("g")!.getAttribute("transform")).toBe("translate(46 0)");
   });
 });
+
+test("long node labels shrink to fit their circle", () => {
+  expect(nodeCircle([0, 0], "Seattle", "idle")).toContain('textLength="30"');
+  expect(nodeCircle([0, 0], "abc", "idle")).not.toContain("textLength");
+});
+
+test("escape is exported for custom views", async () => {
+  expect((await import("../../src/index")).escape("<b>")).toBe("&lt;b&gt;");
+});

@@ -74,4 +74,9 @@ describe("at and watch", () => {
     expect(() => t.at(0)).toThrow(RangeError);
     expect(() => t.at(1.5)).toThrow(RangeError);
   });
+
+  test("watch names the variable it cannot copy", () => {
+    const t = createTrace(0);
+    expect(() => t.watch({ ok: 1, fn: () => {} })).toThrow(/"fn"/);
+  });
 });

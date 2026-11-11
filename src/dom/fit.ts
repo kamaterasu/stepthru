@@ -14,9 +14,10 @@ export function largest(sizes: readonly (Size | null)[]): Size | null {
   return [Math.max(...sizes.map((s) => s![0])), Math.max(...sizes.map((s) => s![1]))];
 }
 
-/** Grows `svg` to `box` without scaling its drawing: centered across, pinned to the top. */
+/** Grows `svg` to `box` without scaling its drawing: centered across, pinned to the top. Keeps the view's own viewBox origin. */
 export function fitTo(svg: SVGSVGElement, [w]: Size, [boxW, boxH]: Size) {
+  const [x0 = 0, y0 = 0] = (svg.getAttribute("viewBox") ?? "").trim().split(/[\s,]+/).map(Number);
   svg.setAttribute("width", String(boxW));
   svg.setAttribute("height", String(boxH));
-  svg.setAttribute("viewBox", `${(w - boxW) / 2} 0 ${boxW} ${boxH}`);
+  svg.setAttribute("viewBox", `${x0 + (w - boxW) / 2} ${y0} ${boxW} ${boxH}`);
 }

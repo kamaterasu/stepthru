@@ -117,11 +117,6 @@ render(t, el);
 
 Phases 0 to 6 are done. Phase 7: README and demo page done, npm `0.1.0` published by the author.
 
-## Open questions
-
-- **Graph layout:** write a simple layout, or use `d3-force` (ISC)? Decide in phase 4.
-- **npm name:** publish an empty `0.0.0` to reserve `stepthru`.
-
 ## Decisions
 
 - **Phase 2:** steps jump with no animation. Add transitions only when a target needs them.

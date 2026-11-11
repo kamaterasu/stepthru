@@ -1,5 +1,24 @@
 # Changelog
 
+## 0.3.0 (2026-11-11)
+
+- New: speed button (0.5×, 1×, 2×, 4×) and `player.setSpeed(n)`. `PlayerState` has `speed`. New `speed` label.
+- New: buttons carry `aria-keyshortcuts` and a tooltip naming their key. Arrow keys, Home and End also work while a button has focus.
+- New: shapes a step compares or moves fade in their color. Off under `prefers-reduced-motion`.
+- Long code scrolls inside its panel (max 24em) and keeps the current line in view without scrolling the page.
+- Array cells widen to fit long values such as `-123456`.
+- Fix: `render` into an element that already held a figure left the old listeners and timer running.
+- `createPlayer` throws a `RangeError` when `intervalMs` is not above 0.
+- `t.watch` names the variable it cannot copy, in place of a bare `DataCloneError`.
+- New: `escape` is exported, for custom views.
+- The docs site links to the test coverage report (`npm run coverage`).
+- Fix: watching a BigInt or a value that refers to itself crashed the figure on that step. The variables panel now shows `10n`, `NaN`, `Infinity`, `Map` and `Set` as written, and `[circular]` for cyclic values.
+- Fix: a custom view with its own `viewBox` origin, such as `-50 -25 100 50`, was shifted and cut off.
+- Fix: moving to a step during playback gave that step only what was left of the interval.
+- Graph and tree labels longer than 3 characters shrink to fit their circle.
+- `t.range` throws when `lo` is above `hi`. Graphs reject loop edges such as `["a", "a"]`. A queue or stack replaced by a newer one throws when used.
+- `render` and `toHTML` throw a clear error for a trace with no steps, and for a step tagged with a line past the end of `code`.
+
 ## 0.2.0 (2026-10-30)
 
 - New: `t.at(line)` and `render(t, el, { code })` show the code next to the figure and highlight the line each step came from.

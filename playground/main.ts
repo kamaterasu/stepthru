@@ -105,6 +105,18 @@ const spy = new IntersectionObserver(
 );
 for (const id of links.keys()) spy.observe(document.getElementById(id)!);
 
+// Test coverage: the Pages build puts the report next to the page. Locally there is none, so the link stays hidden.
+
+fetch("coverage/coverage-summary.json")
+  .then((r) => (r.ok ? r.json() : null))
+  .then((summary: { total: { lines: { pct: number } } } | null) => {
+    if (!summary) return;
+    const box = document.querySelector<HTMLElement>(".coverage")!;
+    box.querySelector("a")!.textContent = `Test coverage ${summary.total.lines.pct}%`;
+    box.hidden = false;
+  })
+  .catch(() => {});
+
 // Copy buttons
 
 document.addEventListener("click", async (e) => {

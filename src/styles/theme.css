@@ -59,6 +59,18 @@
   stroke-width: 3;
   stroke-dasharray: 6 3; /* dashed, so a swap differs from a compare without relying on color */
 }
+/* Shapes redraw every step, so a short fill-in on the ones the step touches stands in for a transition.
+   Marked shapes stay marked across steps, so they do not animate or they would flash every step. */
+@keyframes stepthru-in {
+  from { fill: var(--stepthru-bg); }
+}
+.stepthru-figure [data-state="active"],
+.stepthru-figure [data-state="moved"] {
+  animation: stepthru-in 250ms ease-out;
+}
+@media (prefers-reduced-motion: reduce) {
+  .stepthru-figure [data-state] { animation: none; }
+}
 .stepthru-figure [data-state="marked"] {
   fill: color-mix(in srgb, var(--stepthru-done) 25%, var(--stepthru-bg));
   stroke: var(--stepthru-done);
@@ -112,6 +124,12 @@
   accent-color: var(--stepthru-accent);
 }
 
+.stepthru-controls .stepthru-speed {
+  padding-inline: 0.4rem;
+  font: inherit;
+  font-variant-numeric: tabular-nums;
+}
+
 .stepthru-counter {
   white-space: nowrap;
   font-variant-numeric: tabular-nums;
@@ -133,9 +151,11 @@
 .stepthru-vars dd { margin: 0; }
 
 .stepthru-code {
+  position: relative; /* lines measure their offset from here, to scroll the current one into view */
+  max-height: 24em; /* long code scrolls inside the panel; the current line is kept in view */
   margin: 0;
   padding: 0.5rem 0;
-  overflow-x: auto;
+  overflow: auto;
   font: 0.875em/1.6 ui-monospace, monospace;
   border: 1px solid color-mix(in srgb, var(--stepthru-muted) 40%, var(--stepthru-bg));
   border-radius: 4px;

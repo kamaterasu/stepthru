@@ -121,9 +121,13 @@ const player = render(t, el, { intervalMs: 800 });
 player.play();
 ```
 
-`render` returns the player: `seek(i)`, `next()`, `prev()`, `play()`, `pause()`, `toggle()`, `state` (`{ index, playing }`) and `destroy()`. Call `destroy()` before removing a figure from the page: it stops playback and removes the figure's listeners.
+`render` returns the player: `seek(i)`, `next()`, `prev()`, `play()`, `pause()`, `toggle()`, `setSpeed(n)`, `state` (`{ index, playing, speed }`) and `destroy()`. Call `destroy()` before removing a figure from the page: it stops playback and removes the figure's listeners.
 
-- Keyboard, once the figure has focus: ← → step, space plays or pauses, Home and End jump to the first or last step.
+- Keyboard, once the figure or a control button has focus: ← → step, space plays or pauses, Home and End jump to the first or last step. Each button's tooltip names its key.
+- The speed button cycles 0.5×, 1×, 2× and 4×.
+- Long code scrolls inside its panel, which keeps the current line in view.
+- Shapes a step touches fade in their color, unless the reader prefers reduced motion.
+- Rendering into an element that already holds a figure destroys the old one first.
 - Screen readers hear the caption of each step the reader moves to. During playback captions are not announced, so a step every 800 ms does not flood the reader.
 - Playback pauses when the figure scrolls out of view.
 - The figure keeps the size of its largest step, so it does not jump while a tree or graph grows.
@@ -136,7 +140,7 @@ The controls' screen reader text and tooltips are English by default. Translate 
 ```ts
 render(t, el, {
   labels: { first: "Эхний алхам", prev: "Өмнөх алхам", play: "Тоглуулах", pause: "Зогсоох",
-            next: "Дараах алхам", last: "Сүүлийн алхам", step: "Алхам", code: "Код", variables: "Хувьсагч" },
+            next: "Дараах алхам", last: "Сүүлийн алхам", step: "Алхам", code: "Код", variables: "Хувьсагч", speed: "Хурд" },
 });
 ```
 
@@ -187,13 +191,19 @@ for (let i = 1; i <= 3; i++) t.record("add", { count: i }, `Add one: ${i}`);
 render(t, el, { view: (s) => `<svg width="60" height="40"><text x="10" y="25">${s.count}</text></svg>` });
 ```
 
-Views must escape any text they put into the markup.
+Views must escape any text they put into the markup. Use the exported `escape`:
+
+```ts
+import { escape } from "stepthru";
+const view = (s: { name: string }) => `<svg width="80" height="40"><text x="10" y="25">${escape(s.name)}</text></svg>`;
+```
 
 ## Develop
 
 ```sh
 npm install
 npm run play       # playground with every example
+npm run coverage   # tests with a coverage report in coverage/
 npm test           # unit and acceptance tests
 npm run typecheck
 npm run build

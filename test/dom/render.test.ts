@@ -144,6 +144,54 @@ describe("render extras", () => {
     expect(disconnect).toHaveBeenCalled();
   });
 
+  test("rendering again into the same element replaces the old figure", () => {
+    vi.useFakeTimers();
+    const { el, figure: old } = make();
+    old.play();
+    const t = createTrace(1);
+    t.record("a", 2);
+    t.record("b", 3);
+    const figure = render(t, el, { view: sized, intervalMs: 100 });
+    expect(old.state.playing).toBe(false);
+    el.querySelector<HTMLButtonElement>('[data-action="next"]')!.click();
+    expect(figure.state.index).toBe(1); // one listener, not two
+    expect(old.state.index).toBe(0);
+    figure.destroy();
+    const again = render(t, el, { view: sized });
+    el.querySelector<HTMLButtonElement>('[data-action="next"]')!.click();
+    expect(again.state.index).toBe(1);
+    expect(el.tabIndex).toBe(0);
+  });
+
+  test("the speed button cycles speeds and shows the current one", () => {
+    const { el, figure } = make();
+    const button = el.querySelector<HTMLButtonElement>('[data-action="speed"]')!;
+    expect(button.textContent).toBe("1×");
+    button.click();
+    expect(figure.state.speed).toBe(2);
+    expect(button.textContent).toBe("2×");
+    expect(button.getAttribute("aria-label")).toBe("Speed 2×");
+    button.click();
+    button.click();
+    expect(button.textContent).toBe("0.5×");
+  });
+
+  test("buttons name their keyboard shortcut, and arrows work while a button has focus", () => {
+    const { el } = make();
+    const next = el.querySelector<HTMLButtonElement>('[data-action="next"]')!;
+    expect(next.getAttribute("aria-keyshortcuts")).toBe("ArrowRight");
+    expect(next.title).toBe("Next step (→)");
+    next.dispatchEvent(new KeyboardEvent("keydown", { key: "ArrowRight", bubbles: true }));
+    expect(el.querySelector(".stepthru-counter")!.textContent).toBe("2 / 2");
+  });
+
+  test("space on a focused button is left to the button", () => {
+    const { el, figure } = make();
+    const next = el.querySelector<HTMLButtonElement>('[data-action="next"]')!;
+    next.dispatchEvent(new KeyboardEvent("keydown", { key: " ", bubbles: true }));
+    expect(figure.state.playing).toBe(false);
+  });
+
   test("destroy stops playback and ignores later input", () => {
     vi.useFakeTimers();
     const { el, figure } = make();
@@ -184,6 +232,27 @@ describe("code, variables, labels and toHTML", () => {
     expect(el.querySelectorAll("[aria-current]")).toHaveLength(1);
   });
 
+  test("scrolls the code panel, not the page, to keep the current line in view", () => {
+    const el = document.createElement("div");
+    const lines = Array.from({ length: 40 }, (_, i) => `line ${i + 1}`).join("\n");
+    const t = createTrace(0);
+    t.at(30);
+    t.record("far", 1);
+    t.at(1);
+    t.record("near", 2);
+    render(t, el, { view, code: lines });
+    const box = el.querySelector<HTMLElement>(".stepthru-code")!;
+    Object.defineProperty(box, "clientHeight", { value: 100 });
+    el.querySelectorAll<HTMLElement>(".stepthru-line").forEach((line, i) => {
+      Object.defineProperty(line, "offsetTop", { value: i * 20 });
+      Object.defineProperty(line, "offsetHeight", { value: 20 });
+    });
+    el.querySelector<HTMLButtonElement>('[data-action="next"]')!.click();
+    expect(box.scrollTop).toBe(29 * 20 + 20 - 100);
+    el.querySelector<HTMLButtonElement>('[data-action="next"]')!.click();
+    expect(box.scrollTop).toBe(0);
+  });
+
   test("shows each step's variables, escaped, and hides undefined ones", () => {
     const el = document.createElement("div");
     const figure = render(make(), el, { view });
@@ -192,6 +261,29 @@ describe("code, variables, labels and toHTML", () => {
     expect(vars(el)).toEqual(["a1", 'name"x<y"']);
     figure.next();
     expect(vars(el)).toEqual(['name"x<y"']);
+  });
+
+  test("shows values JSON cannot, and never throws", () => {
+    const t = createTrace(1);
+    const cyclic: Record<string, unknown> = { v: 1 };
+    cyclic.self = cyclic;
+    t.watch({ big: 10n, nan: NaN, map: new Map([["a", 1]]), set: new Set([2]), s: "x", cyclic });
+    t.record("a", 2);
+    const el = document.createElement("div");
+    render(t, el, { view }).next();
+    expect(vars(el)).toEqual(["big10n", "nanNaN", 'map{"a":1}', "set[2]", 's"x"', "cyclic[circular]"]);
+  });
+
+  test("rejects a step tagged past the end of the code", () => {
+    const t = createTrace(1);
+    t.at(3);
+    t.record("a", 2);
+    expect(() => toHTML(t, { view, code: "a\nb\n" })).toThrow(/line 3.*2 lines/);
+    expect(() => toHTML(t, { view })).not.toThrow();
+  });
+
+  test("rejects a trace with no steps", () => {
+    expect(() => toHTML({ ...createTrace(1), steps: [] }, { view })).toThrow(/no steps/);
   });
 
   test("leaves out the panels when nothing uses them", () => {

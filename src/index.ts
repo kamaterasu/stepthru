@@ -1,3 +1,4 @@
+export { escape } from "./core/escape.js";
 export { createTrace, type Step, type Trace, type Vars, type View } from "./core/trace.js";
 export { createPlayer, type Player, type PlayerState } from "./core/player.js";
 export { LABELS, render, toHTML, type Labels, type RenderedFigure, type RenderOptions } from "./dom/render.js";

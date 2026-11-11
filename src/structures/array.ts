@@ -78,6 +78,7 @@ export function traceArray(values: readonly number[], caption = ""): ArrayTrace 
     },
     range(name, lo, hi, caption) {
       check(lo, hi);
+      if (lo > hi) throw new RangeError(`range ${name}: lo ${lo} is above hi ${hi}`);
       s.ranges[name] = [lo, hi];
       step("range", [], caption ?? `${name}: indexes ${lo} to ${hi}`);
     },
@@ -93,29 +94,39 @@ export function traceArray(values: readonly number[], caption = ""): ArrayTrace 
 }
 
 const CELL = 40;
-const PITCH = CELL + 4;
+const GAP = 4;
+const CHAR_W = 10; // rough width of one digit at the default font size
 const TOP = 24; // room for range brackets above the cells
 const BOTTOM = TOP + CELL;
 
-const center = (i: number) => i * PITCH + CELL / 2;
+/** At least CELL, wider when a value would not fit. Hooks only reorder values, so the width holds for every step. */
+const cellWidth = (values: readonly number[]) =>
+  Math.max(CELL, ...values.map((v) => String(v).length * CHAR_W + 12));
 
-function cell(s: ArrayState, v: number, i: number): string {
+interface Geometry { w: number; pitch: number; center: (i: number) => number }
+const geometry = (values: readonly number[]): Geometry => {
+  const w = cellWidth(values);
+  const pitch = w + GAP;
+  return { w, pitch, center: (i) => i * pitch + w / 2 };
+};
+
+function cell(s: ArrayState, g: Geometry, v: number, i: number): string {
   const state = s.moved.includes(i) ? "moved" : s.active.includes(i) ? "active" : i in s.marks ? "marked" : "idle";
   const ranges = Object.values(s.ranges);
   const dim = ranges.length > 0 && !ranges.some(([lo, hi]) => i >= lo && i <= hi);
-  return `<g${dim ? ' data-dim=""' : ""}><rect data-state="${state}" x="${i * PITCH}" y="${TOP}" width="${CELL}" height="${CELL}" rx="4"/>`
-    + `<text x="${center(i)}" y="${TOP + CELL / 2}" text-anchor="middle" dominant-baseline="central">${escape(v)}</text></g>`;
+  return `<g${dim ? ' data-dim=""' : ""}><rect data-state="${state}" x="${i * g.pitch}" y="${TOP}" width="${g.w}" height="${CELL}" rx="4"/>`
+    + `<text x="${g.center(i)}" y="${TOP + CELL / 2}" text-anchor="middle" dominant-baseline="central">${escape(v)}</text></g>`;
 }
 
 // shortcut: overlapping ranges draw on top of each other; stack them if a target needs two at once.
-function range(name: string, [lo, hi]: [number, number]): string {
-  const x1 = lo * PITCH;
-  const x2 = hi * PITCH + CELL;
+function range(g: Geometry, name: string, [lo, hi]: [number, number]): string {
+  const x1 = lo * g.pitch;
+  const x2 = hi * g.pitch + g.w;
   return `<path class="stepthru-range" d="M${x1} ${TOP - 4}V${TOP - 10}H${x2}V${TOP - 4}"/>`
     + `<text x="${(x1 + x2) / 2}" y="${TOP - 14}" text-anchor="middle" font-size="11">${escape(name)}</text>`;
 }
 
-function pointers(s: ArrayState): string[] {
+function pointers(s: ArrayState, { center }: Geometry): string[] {
   const names = new Map<number, string[]>();
   for (const [name, i] of Object.entries(s.pointers)) names.set(i, [...(names.get(i) ?? []), name]);
   return [...names].map(
@@ -126,12 +137,13 @@ function pointers(s: ArrayState): string[] {
 
 /** Draws cells with their values, range brackets above and pointers below. */
 export function arrayView(s: ArrayState): string {
-  const width = s.values.length * PITCH - 4;
+  const g = geometry(s.values);
+  const width = s.values.length * g.pitch - GAP;
   const label = s.values.map((v, i) => (i in s.marks ? `${v} (${s.marks[i]})` : v)).join(", ");
   const parts = [
-    ...Object.entries(s.ranges).map(([name, r]) => range(name, r)),
-    ...s.values.map((v, i) => cell(s, v, i)),
-    ...pointers(s),
+    ...Object.entries(s.ranges).map(([name, r]) => range(g, name, r)),
+    ...s.values.map((v, i) => cell(s, g, v, i)),
+    ...pointers(s, g),
   ];
   return frame(`Array: ${label}`, { svg: parts.join(""), width, height: BOTTOM + 36 });
 }

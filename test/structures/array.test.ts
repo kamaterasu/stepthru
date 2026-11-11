@@ -48,6 +48,10 @@ describe("traceArray", () => {
     expect(lastStep(t).state).toMatchObject({ active: [0, 1], moved: [] });
   });
 
+  test("range rejects lo above hi", () => {
+    expect(() => traceArray([1, 2, 3, 4]).range("r", 3, 1)).toThrow(RangeError);
+  });
+
   test("mark, pointer, range and clear update state", () => {
     const t = traceArray([1, 2, 3]);
     t.mark(2, "sorted");
@@ -105,6 +109,13 @@ describe("arrayView", () => {
     expect(svg.querySelectorAll("rect")).toHaveLength(3);
     expect([...svg.querySelectorAll("rect + text")].map((t) => t.textContent)).toEqual(["1", "2", "3"]);
     expect(svg.getAttribute("viewBox")).toBe("0 0 128 100");
+  });
+
+  test("widens every cell to fit the longest value", () => {
+    const svg = parse(arrayView(state({ values: [1, -123456] })));
+    const widths = [...svg.querySelectorAll("rect")].map((r) => Number(r.getAttribute("width")));
+    expect(widths[0]).toBe(widths[1]);
+    expect(widths[0]).toBeGreaterThan(40);
   });
 
   test("active wins over marked, and the rest are idle", () => {

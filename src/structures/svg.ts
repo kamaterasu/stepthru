@@ -10,10 +10,15 @@ const CELL = 32;
 const LABEL_W = 48;
 const ROW_GAP = 16;
 
+// Labels longer than this get squeezed to fit inside the circle.
+const FIT_CHARS = 3;
+const fitText = (label: string | number) =>
+  String(label).length > FIT_CHARS ? ` textLength="${2 * NODE_R - 6}" lengthAdjust="spacingAndGlyphs"` : "";
+
 /** A labelled circle, used for graph and tree nodes. */
 export const nodeCircle = ([x, y]: Point, label: string | number, state: ShapeState) =>
   `<circle data-state="${state}" cx="${x}" cy="${y}" r="${NODE_R}"/>`
-  + `<text x="${x}" y="${y}" text-anchor="middle" dominant-baseline="central">${escape(label)}</text>`;
+  + `<text x="${x}" y="${y}" text-anchor="middle" dominant-baseline="central"${fitText(label)}>${escape(label)}</text>`;
 
 /** A line between two node centers. Draw lines before circles so circles cover the ends. */
 export const edgeLine = ([x1, y1]: Point, [x2, y2]: Point, state: ShapeState) =>

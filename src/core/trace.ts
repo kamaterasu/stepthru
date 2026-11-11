@@ -52,7 +52,15 @@ export function createTrace<S>(initial: S, caption = ""): Trace<S> {
   };
   // A new object per call, so steps can share it safely: it never changes after this.
   const watch = (next: Record<string, unknown>) => {
-    vars = { ...vars, ...structuredClone(next) };
+    const copy: Record<string, unknown> = {};
+    for (const [name, value] of Object.entries(next)) {
+      try {
+        copy[name] = structuredClone(value);
+      } catch {
+        throw new TypeError(`watch: cannot copy "${name}"; functions, DOM nodes and class instances with private fields are not supported`);
+      }
+    }
+    vars = { ...vars, ...copy };
   };
 
   record("init", initial, caption);
