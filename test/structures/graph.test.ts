@@ -115,10 +115,12 @@ describe("graphView", () => {
   const state = (over: Partial<GraphState> = {}): GraphState => ({
     nodes: ["A", "B", "C", "D"],
     edges: [["A", "B"], ["A", "C"], ["B", "D"]],
+    directed: false,
     visited: [],
     current: null,
     edgeMarks: {},
     list: null,
+    tags: {},
     ...over,
   });
   const parse = (svg: string) => new DOMParser().parseFromString(svg, "image/svg+xml").documentElement;
@@ -157,5 +159,65 @@ describe("graphView", () => {
   test("escapes node ids", () => {
     const svg = parse(graphView(state({ nodes: ["<x>"], edges: [] })));
     expect(svg.querySelector("text")!.textContent).toBe("<x>");
+  });
+});
+
+describe("directed and weighted graphs", () => {
+  const roads = { nodes: ["A", "B", "C"], edges: [["A", "B", 4], ["B", "C", 1]] as [string, string, number][], directed: true };
+  const parse = (svg: string) => new DOMParser().parseFromString(svg, "image/svg+xml").documentElement;
+
+  test("directed edges only go one way", () => {
+    const t = traceGraph(roads);
+    expect(t.neighbors("A")).toEqual(["B"]);
+    expect(t.neighbors("B")).toEqual(["C"]);
+    expect(() => t.edge("B", "A", "tree")).toThrow("no edge B-A");
+    t.edge("A", "B", "tree");
+    expect(t.steps.at(-1)!.state.edgeMarks).toEqual({ [edgeKey("A", "B", true)]: "tree" });
+    expect(edgeKey("A", "B", true)).not.toBe(edgeKey("B", "A", true));
+  });
+
+  test("weight reads an edge's weight, 1 when unweighted", () => {
+    expect(traceGraph(roads).weight("A", "B")).toBe(4);
+    expect(traceGraph({ nodes: ["A", "B"], edges: [["A", "B"]] }).weight("B", "A")).toBe(1);
+    expect(() => traceGraph({ nodes: ["A", "B"], edges: [["A", "B", NaN]] })).toThrow("weight");
+  });
+
+  test("draws a directed graph with no cycle in layers, each node below everything pointing to it", () => {
+    const t = traceGraph({ nodes: ["coat", "tie", "shirt"], edges: [["shirt", "tie"], ["tie", "coat"], ["shirt", "coat"]], directed: true });
+    const svg = parse(t.view!(t.steps[0].state));
+    const y = (id: string) => Number([...svg.querySelectorAll("text")].find((x) => x.textContent === id)!.getAttribute("y"));
+    expect(y("shirt")).toBeLessThan(y("tie"));
+    expect(y("tie")).toBeLessThan(y("coat"));
+  });
+
+  test("draws an arrowhead per directed edge, weights, and tags", () => {
+    const t = traceGraph(roads);
+    t.tag("A", 0);
+    const svg = parse(t.view!(t.steps.at(-1)!.state));
+    expect(svg.querySelectorAll("path.stepthru-arrow")).toHaveLength(2);
+    expect([...svg.querySelectorAll(".stepthru-weight")].map((x) => x.textContent)).toEqual(["4", "1"]);
+    expect(svg.querySelector(".stepthru-tag")!.textContent).toBe("0");
+    expect(svg.getAttribute("aria-label")).toContain("Directed graph");
+    t.tag("A", null);
+    expect(t.steps.at(-1)!.state.tags).toEqual({});
+  });
+});
+
+describe("captions", () => {
+  test("every tracer's default captions can be replaced, for example translated", async () => {
+    const { traceArray, traceTree, traceGrid } = await import("../../src/index");
+    const a = traceArray([2, 1], { captions: { compare: (x, y) => `${x} ба ${y}-г харьцуулах` } });
+    a.compare(0, 1);
+    a.swap(0, 1);
+    expect(a.steps.map((s) => s.caption).slice(1)).toEqual(["2 ба 1-г харьцуулах", "Swap 2 and 1"]);
+    const g = traceGraph({ nodes: ["A"], edges: [] }, { captions: { visit: (id) => `${id}-д очих` } });
+    g.visit("A");
+    expect(g.steps.at(-1)!.caption).toBe("A-д очих");
+    const tr = traceTree(null, { captions: { addRoot: (v) => `${v} үндэс болно` } });
+    tr.addRoot(5);
+    expect(tr.steps.at(-1)!.caption).toBe("5 үндэс болно");
+    const gr = traceGrid([[1]], { captions: { mark: () => "хариу" } });
+    gr.mark(0, 0, "answer");
+    expect(gr.steps.at(-1)!.caption).toBe("хариу");
   });
 });

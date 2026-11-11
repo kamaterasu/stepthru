@@ -25,6 +25,11 @@ export interface Trace<S> {
    * Method syntax on purpose: it lets any trace be stored as `Trace<unknown>`, for example in a registry of mixed figures.
    */
   view?(state: S): string;
+  /**
+   * The natural width and height `view` would draw a state at, worked out without drawing it.
+   * Optional: `render` uses it to size long traces quickly, and draws each step to measure it otherwise.
+   */
+  size?(state: S): readonly [width: number, height: number];
 }
 
 /** Turns one state into SVG markup. Views must escape any text they put in the markup. */

@@ -10,6 +10,9 @@ import { editDistance } from "../../examples/edit-distance";
 import { insertionSort, insertionSortCode } from "../../examples/insertion-sort";
 import { mazePath } from "../../examples/maze";
 import { mergeSort } from "../../examples/merge-sort";
+import { heapSort } from "../../examples/heapsort";
+import { dijkstra } from "../../examples/dijkstra";
+import { topologicalSort } from "../../examples/topological-sort";
 import { selectionSort, selectionSortCode } from "../../examples/selection-sort";
 import { edgeKey, type ArrayTrace, type GridTrace, type GraphInput, type GraphTrace, type TreeState, type TreeTrace } from "../../src/index";
 
@@ -20,6 +23,7 @@ describe.each([
   ["bubbleSort", bubbleSort],
   ["quickSort", quickSort],
   ["selectionSort", selectionSort],
+  ["heapSort", heapSort],
 ])("%s", (_, sort) => {
   test.each(inputs)("sorts %j and marks every cell sorted", (...input) => {
     const { state } = final(sort(input));
@@ -69,6 +73,41 @@ describe("mazePath", () => {
 
   test("says when the exit cannot be reached", () => {
     expect(final(mazePath([".#", "#."])).caption).toBe("The exit cannot be reached");
+  });
+});
+
+describe("dijkstra", () => {
+  const roads: GraphInput = {
+    nodes: ["A", "B", "C", "D", "E"],
+    edges: [["A", "B", 4], ["A", "C", 1], ["C", "B", 2], ["B", "D", 5], ["C", "D", 8], ["D", "E", 3]],
+  };
+
+  test("tags every node with its shortest distance and marks the shortest-path tree", () => {
+    const { state, caption } = final(dijkstra(roads, "A"));
+    expect(state.tags).toEqual({ A: "0", B: "3", C: "1", D: "8", E: "11" });
+    expect(Object.keys(state.edgeMarks).sort()).toEqual(
+      [edgeKey("A", "C"), edgeKey("C", "B"), edgeKey("B", "D"), edgeKey("D", "E")].sort(),
+    );
+    expect(caption).toMatch(/^Done/);
+  });
+
+  test("leaves unreachable nodes untagged", () => {
+    const { state } = final(dijkstra({ nodes: ["A", "B", "Z"], edges: [["A", "B", 2]] }, "A"));
+    expect(state.tags).toEqual({ A: "0", B: "2" });
+    expect(state.visited).toEqual(["A", "B"]);
+  });
+});
+
+describe("topologicalSort", () => {
+  test("visits every node after all the nodes that point to it", () => {
+    const edges: [string, string][] = [["shirt", "tie"], ["tie", "jacket"], ["pants", "shoes"], ["pants", "belt"], ["belt", "jacket"], ["shirt", "belt"]];
+    const { state, caption } = final(topologicalSort({ nodes: ["shirt", "tie", "jacket", "pants", "belt", "shoes"], edges }));
+    for (const [u, v] of edges) expect(state.visited.indexOf(u)).toBeLessThan(state.visited.indexOf(v));
+    expect(caption).toBe(`Order: ${state.visited.join(", ")}`);
+  });
+
+  test("reports a cycle", () => {
+    expect(final(topologicalSort({ nodes: ["a", "b"], edges: [["a", "b"], ["b", "a"]] })).caption).toMatch(/cycle/);
   });
 });
 

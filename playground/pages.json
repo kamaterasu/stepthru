@@ -157,6 +157,38 @@
     ]
   },
   {
+    "slug": "heapsort",
+    "title": "Heapsort",
+    "group": "Arrays",
+    "description": "Heapsort visualized step by step: the array drawn as a binary heap, sift-downs and swaps, driven by real JavaScript code.",
+    "lead": "Heapsort reads the array as a binary tree: index i has children 2i + 1 and 2i + 2. It first rearranges the array into a max-heap, where every parent is at least as large as its children, then moves the largest value to the end again and again.",
+    "steps": [
+      "Build a max-heap: sift down every parent, from the last one up to the root.",
+      "Sift down: swap a value with its larger child until both children are smaller.",
+      "Swap the root, the largest value, with the last value in the heap. It is now in its final place.",
+      "Shrink the heap by one and sift the new root down.",
+      "Repeat until the heap has one value."
+    ],
+    "facts": [
+      [
+        "Time",
+        "O(n log n) in every case."
+      ],
+      [
+        "Space",
+        "O(1): it sorts in place."
+      ],
+      [
+        "Stable",
+        "No."
+      ]
+    ],
+    "hooks": [
+      "compare",
+      "swap"
+    ]
+  },
+  {
     "slug": "binary-search",
     "title": "Binary search",
     "group": "Arrays",
@@ -248,6 +280,70 @@
     "hooks": [
       "visit",
       "edge"
+    ]
+  },
+  {
+    "slug": "dijkstra",
+    "title": "Dijkstra's algorithm",
+    "group": "Graphs",
+    "description": "Dijkstra's shortest path algorithm visualized step by step on a weighted graph: distances, relaxed edges and the shortest-path tree.",
+    "lead": "Dijkstra's algorithm finds the shortest distance from one node to every other node in a graph with non-negative edge weights. It settles nodes in order of distance, and each settled node's distance is final.",
+    "steps": [
+      "The start is 0 away. Every other node starts unreached.",
+      "Pick the closest node that is not settled yet.",
+      "For each of its neighbors, check whether going through it is shorter than the best distance known. If so, update the distance.",
+      "Mark the node settled.",
+      "Repeat until no reachable node is left. The edges each node was last updated from form the shortest-path tree."
+    ],
+    "facts": [
+      [
+        "Time",
+        "O(V²) for this simple version. O((V + E) log V) with a priority queue."
+      ],
+      [
+        "Space",
+        "O(V) for the distances."
+      ],
+      [
+        "Needs",
+        "Weights that are not negative. With negative weights, use Bellman–Ford."
+      ]
+    ],
+    "hooks": [
+      "tag",
+      "weight"
+    ]
+  },
+  {
+    "slug": "topological-sort",
+    "title": "Topological sort",
+    "group": "Graphs",
+    "description": "Topological sort with Kahn's algorithm visualized step by step on a directed graph: incoming-edge counts, the queue and the final order.",
+    "lead": "A topological sort orders the nodes of a directed graph so every edge points forward: each node comes after everything that points to it. Kahn's algorithm builds the order by repeatedly taking a node that nothing left points to.",
+    "steps": [
+      "Count each node's incoming edges.",
+      "Queue every node with no incoming edges.",
+      "Take a node from the queue and add it to the order.",
+      "Remove its outgoing edges. Queue any node whose count drops to 0.",
+      "If some nodes never reach 0, the graph has a cycle and no order exists."
+    ],
+    "facts": [
+      [
+        "Time",
+        "O(V + E)."
+      ],
+      [
+        "Space",
+        "O(V) for the counts and the queue."
+      ],
+      [
+        "Used for",
+        "Build systems, course prerequisites, task scheduling, spreadsheet recalculation."
+      ]
+    ],
+    "hooks": [
+      "tag",
+      "queue"
     ]
   },
   {

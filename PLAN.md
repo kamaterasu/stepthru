@@ -135,11 +135,18 @@ Phases 0 to 6 are done. Phase 7: README and demo page done, npm `0.1.0` publishe
 - `traceGrid` covers DP tables and mazes. `null` is an empty cell; `wall` picks values to draw solid.
 - Algorithm pages are generated from `playground/pages.json` by `scripts/pages.mjs`, and a test fails when the committed HTML drifts from it.
 
+## Decisions (0.5)
+
+- Captions are functions per hook (`ARRAY_CAPTIONS` and friends), so translations can reorder words. Tracers merge `captions` over the English defaults.
+- Graph edges take an optional third element, the weight. `directed` is on the input. Directed graphs with no cycle are drawn in layers; anything else keeps BFS rows.
+- Heaps are not a new tracer: `heapView` is another view of `ArrayState`, so heapsort is ordinary array code.
+- Tree edges ride with their child node as a keyed group, so they slide with it.
+- `Trace.size` is optional. Arrays and grids implement it from the same geometry their views use, and a test checks the two agree.
+- Playwright tests the built site in Chromium. Unit tests could not see the yellow fade bug; a screenshot did.
+
 ## After v0.1
 
 Ideas, in no order. Each waits for a real post that needs it.
 
 - Weighted and directed graphs, for Dijkstra.
-- Slide tree nodes as the tree grows. Edges are lines between node centers, so they would need to move with the nodes.
-- A heap or priority queue, for heapsort and Dijkstra.
 - A real graph layout for graphs that are not tree-like.

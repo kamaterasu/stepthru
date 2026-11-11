@@ -38,6 +38,11 @@ export interface RenderOptions<S> {
   /** Source code to show under the figure. Steps tagged with `t.at(line)` highlight that line. */
   code?: string;
   labels?: Partial<Labels>;
+  /**
+   * Keeps the step in the page URL as `#<element id>=<step>`, so a link can open the figure at that step.
+   * Needs the element to have an id. Written when the reader moves, not during playback.
+   */
+  link?: boolean;
 }
 
 export interface RenderedFigure extends Player {
@@ -184,11 +189,15 @@ function scrollWithin(box: HTMLElement, line: HTMLElement) {
 /** Mounts a playable figure for `trace` into `el` and returns its player. Replaces what `el` holds. */
 export function render<S>(trace: Trace<S>, el: HTMLElement, options: RenderOptions<S> = {}): RenderedFigure {
   const prepared = prepare(trace, options);
+  if (options.link && !el.id) throw new TypeError("link needs the figure's element to have an id");
+  const hashKey = `#${encodeURIComponent(el.id)}=`;
   mounted.get(el)?.destroy();
   const { steps, draw, text } = prepared;
   const last = steps.length - 1;
-  // Size every step once up front, so the figure can keep the size of its largest step. The markup itself is dropped.
-  const sizes = steps.map((_, i) => svgSize(draw(i)));
+  // Size every step once up front, so the figure can keep the size of its largest step. A tracer's own `size` is
+  // much cheaper than drawing, but it only describes the tracer's own view.
+  const measure = trace.size && !options.view ? trace.size.bind(trace) : null;
+  const sizes = steps.map((step, i) => (measure ? measure(step.state) : svgSize(draw(i))));
   const box = largest(sizes);
 
   el.classList.add("stepthru");
@@ -207,6 +216,7 @@ export function render<S>(trace: Trace<S>, el: HTMLElement, options: RenderOptio
   const lines = [...el.querySelectorAll<HTMLElement>(".stepthru-line")];
 
   let shown = 0;
+  let linking = false;
   const update = ({ index, playing, speed }: PlayerState) => {
     const step = steps[index];
     // Slide only between neighboring steps; a jump across many steps would only smear.
@@ -215,6 +225,8 @@ export function render<S>(trace: Trace<S>, el: HTMLElement, options: RenderOptio
     if (box) fitTo(figure.querySelector("svg")!, sizes[index]!, box);
     if (before) slide(figure, before, 250 / Math.max(speed, 1));
     shown = index;
+    // replaceState, so stepping does not fill the back button's history. Skipped for the first draw, so mounting writes nothing.
+    if (options.link && linking && !playing) history.replaceState(history.state, "", `${hashKey}${index + 1}`);
     // Announce only steps the reader moves to; during playback a caption every interval is noise.
     caption.setAttribute("aria-live", playing ? "off" : "polite");
     caption.textContent = step.caption;
@@ -270,6 +282,14 @@ export function render<S>(trace: Trace<S>, el: HTMLElement, options: RenderOptio
   observer?.observe(el);
 
   update(player.state);
+  linking = true;
+  if (options.link && location.hash.startsWith(hashKey)) {
+    const step = Number(location.hash.slice(hashKey.length));
+    if (Number.isInteger(step) && step >= 1) {
+      player.seek(step - 1);
+      el.scrollIntoView({ block: "center" });
+    }
+  }
   const figureApi: RenderedFigure = {
     ...player,
     get state() {

@@ -20,7 +20,7 @@ for (const f of FIGURES) {
     group = f.group;
     examples.append(el("h3", { id: `example-${slug(group)}`, textContent: group }));
   }
-  const figure = el("div");
+  const figure = el("div", { id: f.slug });
   const details = el("details", {}, el("summary", { textContent: "Full source" }), el("pre", { textContent: f.source }));
   const more = el("p", {}, el("a", { href: `${f.slug}/`, textContent: `${f.title}, step by step: how it works and its cost →` }));
   examples.append(el("h4", { id: `example-${slug(f.title)}`, textContent: f.title }), figure, details, more);

@@ -100,6 +100,13 @@ const t = traceArray(people, {
 
 An index outside the array throws a `RangeError`.
 
+To draw an array as a binary heap, a tree above the array itself, pass `heapView` as the view. Values slide along both when swapped:
+
+```ts
+import { heapView, render } from "stepthru";
+render(t, el, { view: (s) => heapView(s) });
+```
+
 ## Grids
 
 For dynamic programming tables, mazes and anything else laid out in rows and columns.
@@ -127,15 +134,25 @@ const t = traceGraph({ nodes: ["A", "B", "C"], edges: [["A", "B"], ["B", "C"]] }
 
 | Hook | Records | What it does |
 |---|---|---|
-| `t.neighbors(id)`, `t.visited(id)` | no | Read. Neighbors come in the order their edges were given |
+| `t.neighbors(id)`, `t.visited(id)`, `t.weight(u, v)` | no | Read. Neighbors come in the order their edges were given. `weight` is 1 for an edge without one |
 | `t.visit(id)` | yes | Marks a node visited |
 | `t.focus(id)` | yes | Makes a node the current one |
 | `t.edge(u, v, mark)` | yes | Marks an edge, for example `"tree"` |
+| `t.tag(id, text)` | yes | Draws short text by a node, such as a distance. `null` removes it |
 | `t.queue(items?)` | yes | Starts a queue drawn under the graph: `push(id)`, `shift()`, `length` |
 | `t.stack(items?)` | yes | Starts a stack drawn under the graph: `push(id)`, `pop()`, `length` |
 | `t.note(caption)` | yes | A step with only a caption |
 
-`shift()` and `pop()` make the taken node current. Graphs are undirected and unweighted. Nodes are drawn in rows by distance from the first node.
+`shift()` and `pop()` make the taken node current.
+
+Edges can have a weight, drawn on the edge, and a graph can be directed, drawn with arrows:
+
+```ts
+const roads = traceGraph({ nodes: ["A", "B", "C"], edges: [["A", "B", 4], ["B", "C", 1]] });
+const tasks = traceGraph({ nodes: ["wash", "dry", "fold"], edges: [["wash", "dry"], ["dry", "fold"]], directed: true });
+```
+
+A directed graph with no cycle is drawn in layers, each node below everything that points to it. Other graphs are drawn in rows by distance from the first node.
 
 ## Binary trees
 
@@ -186,6 +203,19 @@ render(t, el, {
 
 The defaults are exported as `LABELS`.
 
+The captions the tracers write, such as "Compare 5 and 2", can be translated too. Pass `captions` to the tracer; anything you leave out stays English:
+
+```ts
+const t = traceArray([5, 2, 8], {
+  captions: {
+    compare: (a, b) => `${a} ба ${b}-г харьцуулах`,
+    swap: (a, b) => `${a} ба ${b}-г солих`,
+  },
+});
+```
+
+Every tracer takes `captions`: `traceArray`, `traceGraph`, `traceTree` and `traceGrid`. The English defaults are exported as `ARRAY_CAPTIONS`, `GRAPH_CAPTIONS`, `TREE_CAPTIONS` and `GRID_CAPTIONS`, and show the arguments each caption gets.
+
 ## Theming
 
 `stepthru/theme.css` styles the player and the views. Its colors are CSS variables with defaults for light and dark (from the OS setting). Set them anywhere to match your site:
@@ -201,6 +231,104 @@ The defaults are exported as `LABELS`.
 ```
 
 Figures render at their natural size and only shrink on narrow screens. Add `.stepthru-figure svg { width: 100%; }` to scale them up.
+
+## Linking to a step
+
+Give the figure's element an `id` and pass `link: true`. The page URL then follows the step, as `#<id>=<step>`, and opening that URL shows the figure at that step:
+
+```ts
+render(t, document.querySelector("#bubble")!, { link: true }); // page.html#bubble=12 opens step 12
+```
+
+The URL changes when the reader moves, not during playback, and never adds to the back button's history.
+
+## No build step
+
+stepthru is plain ES modules with no dependencies, so a page can load it from a CDN:
+
+```html
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/stepthru@0.4/dist/theme.css" />
+<div id="figure"></div>
+<script type="module">
+  import { traceArray, render } from "https://cdn.jsdelivr.net/npm/stepthru@0.4/dist/index.js";
+
+  const t = traceArray([5, 2, 8, 1, 9]);
+  for (let i = 0; i < t.length; i++) {
+    for (let j = 0; j < t.length - i - 1; j++) {
+      if (t.compare(j, j + 1) > 0) t.swap(j, j + 1);
+    }
+  }
+  render(t, document.querySelector("#figure"));
+</script>
+```
+
+`https://esm.sh/stepthru@0.4` works too.
+
+## Frameworks
+
+`render` takes any element and returns a `destroy()`, so each framework needs only a few lines. Import `stepthru/theme.css` once in your app.
+
+**React**
+
+```tsx
+import { useEffect, useRef } from "react";
+import { render, type Trace } from "stepthru";
+
+export function Figure<S>({ trace }: { trace: Trace<S> }) {
+  const el = useRef<HTMLDivElement>(null);
+  useEffect(() => render(trace, el.current!).destroy, [trace]);
+  return <div ref={el} />;
+}
+```
+
+Build the trace outside the component, or with `useMemo`, so it is not traced again on every render.
+
+**Vue**
+
+```vue
+<script setup lang="ts">
+import { onBeforeUnmount, onMounted, ref } from "vue";
+import { render, type RenderedFigure, type Trace } from "stepthru";
+
+const props = defineProps<{ trace: Trace<unknown> }>();
+const el = ref<HTMLDivElement>();
+let figure: RenderedFigure | undefined;
+onMounted(() => (figure = render(props.trace, el.value!)));
+onBeforeUnmount(() => figure?.destroy());
+</script>
+
+<template><div ref="el" /></template>
+```
+
+**Svelte**
+
+```svelte
+<script lang="ts">
+  import { render, type Trace } from "stepthru";
+  export let trace: Trace<unknown>;
+  const figure = (el: HTMLElement) => ({ destroy: render(trace, el).destroy });
+</script>
+
+<div use:figure></div>
+```
+
+**Astro, or any static site**
+
+Render the first step at build time with `toHTML`, so the figure shows without JavaScript, then make it playable in the browser:
+
+```astro
+---
+import { toHTML } from "stepthru";
+import { bubbleSort } from "../algorithms/bubble-sort";
+---
+<div class="stepthru" id="bubble" set:html={toHTML(bubbleSort([5, 2, 8, 1, 9]))} />
+<script>
+  import "stepthru/theme.css";
+  import { render } from "stepthru";
+  import { bubbleSort } from "../algorithms/bubble-sort";
+  render(bubbleSort([5, 2, 8, 1, 9]), document.querySelector("#bubble")!);
+</script>
+```
 
 ## Without JavaScript
 
@@ -238,6 +366,8 @@ import { escape } from "stepthru";
 const view = (s: { name: string }) => `<svg width="80" height="40"><text x="10" y="25">${escape(s.name)}</text></svg>`;
 ```
 
+`render` draws every step once at the start to find the largest, so the figure does not jump. For traces with thousands of steps, give the trace a `size(state)` method that returns the `[width, height]` the view would draw, and `render` skips the drawing.
+
 ## Develop
 
 See [CONTRIBUTING.md](CONTRIBUTING.md), including how to add an algorithm page.
@@ -250,6 +380,7 @@ npm run size       # what stepthru adds to a bundle, minified and gzipped
 npm run demo       # rebuild brand/demo.svg, the animated figure in this README
 npm run pages      # rebuild the algorithm pages from playground/pages.json
 npm test           # unit and acceptance tests
+npm run e2e        # the built site in a real browser (first: npx playwright install chromium)
 npm run typecheck
 npm run build
 ```

@@ -9,6 +9,7 @@ npm install
 npm run play       # the site with every example, live
 npm test
 npm run typecheck
+npm run e2e        # the built site in Chromium; run `npx playwright install chromium` once first
 ```
 
 `PLAN.md` holds the principles and the decisions so far. Read its principles before a bigger change: the library traces real code, adds nothing a real figure does not need, and has no runtime dependencies.

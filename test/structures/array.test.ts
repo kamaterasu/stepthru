@@ -1,6 +1,6 @@
 // @vitest-environment happy-dom
 import { describe, expect, test } from "vitest";
-import { arrayView, traceArray, type ArrayState, type ArrayTrace } from "../../src/structures/array";
+import { arrayView, heapView, traceArray, type ArrayState, type ArrayTrace } from "../../src/structures/array";
 
 const lastStep = <T>(t: ArrayTrace<T>) => t.steps[t.steps.length - 1];
 
@@ -191,5 +191,23 @@ describe("arrayView", () => {
     const svg = parse(arrayView(state({ pointers: { "<i>": 0 }, marks: { 1: "found" } })));
     expect([...svg.querySelectorAll("text")].some((t) => t.textContent === "<i>")).toBe(true);
     expect(svg.getAttribute("aria-label")).toBe("Array: 1, 2 (found), 3");
+  });
+});
+
+describe("heapView", () => {
+  const parse = (svg: string) => new DOMParser().parseFromString(svg, "image/svg+xml").documentElement;
+
+  test("draws the array as a tree of keyed nodes over the array itself", () => {
+    const t = traceArray([9, 5, 7, 1]);
+    t.range("heap", 0, 2);
+    t.swap(0, 2);
+    const svg = parse(heapView(lastStep(t).state));
+    expect(svg.getAttribute("aria-label")).toMatch(/^Heap: 7, 5, 9, 1/);
+    expect(svg.querySelectorAll("line")).toHaveLength(3); // parent links for indexes 1, 2, 3
+    const nodes = [...svg.querySelectorAll("g[data-key^='n']")];
+    expect(nodes.map((g) => g.textContent)).toEqual(["7", "5", "9", "1"]);
+    expect(nodes[0].getAttribute("data-key")).toBe("n2"); // the 7 started at index 2
+    expect(nodes[3].hasAttribute("data-dim")).toBe(true); // outside the heap range
+    expect(svg.querySelectorAll("rect")).toHaveLength(4); // the array row
   });
 });

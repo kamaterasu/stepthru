@@ -45,6 +45,29 @@ export interface TreeTrace extends Trace<TreeState> {
   note(caption: string): void;
 }
 
+/** Default captions, one per hook. Node values arrive as numbers. */
+export interface TreeCaptions {
+  compare(value: number, node: number): string;
+  addRoot(value: number): string;
+  addChild(value: number, side: Side, parent: number): string;
+  focus(value: number): string;
+  visit(value: number): string;
+}
+
+export const TREE_CAPTIONS: TreeCaptions = {
+  compare: (value, node) => `Compare ${value} with ${node}`,
+  addRoot: (value) => `${value} becomes the root`,
+  addChild: (value, side, parent) => `Add ${value} as the ${side} child of ${parent}`,
+  focus: (value) => `Go to ${value}`,
+  visit: (value) => `Visit ${value}`,
+};
+
+export interface TreeOptions {
+  caption?: string;
+  /** Replaces default captions, for example to translate them. */
+  captions?: Partial<TreeCaptions>;
+}
+
 function flatten(input: TreeInput | null | undefined, nodes: TreeNode[]): number | null {
   if (!input) return null;
   const id = nodes.push({ value: input.value, left: null, right: null }) - 1;
@@ -53,7 +76,10 @@ function flatten(input: TreeInput | null | undefined, nodes: TreeNode[]): number
   return id;
 }
 
-export function traceTree(input: TreeInput | null = null, caption = ""): TreeTrace {
+/** The second argument is a caption, or options with a caption and translated captions. */
+export function traceTree(input: TreeInput | null = null, options: string | TreeOptions = {}): TreeTrace {
+  const { caption = "", captions } = typeof options === "string" ? { caption: options } : options;
+  const say: TreeCaptions = { ...TREE_CAPTIONS, ...captions };
   const nodes: TreeNode[] = [];
   const s: TreeState = { nodes, root: flatten(input, nodes), current: null, visited: [] };
   const t = createTrace(s, caption);
@@ -76,14 +102,14 @@ export function traceTree(input: TreeInput | null = null, caption = ""): TreeTra
     compare(value, id, caption) {
       const n = node(id);
       s.current = id;
-      step("compare", caption ?? `Compare ${value} with ${n.value}`);
+      step("compare", caption ?? say.compare(value, n.value));
       return value - n.value;
     },
     addRoot(value, caption) {
       if (s.root !== null) throw new RangeError("the tree already has a root");
       s.root = add(value);
       s.current = s.root;
-      step("add", caption ?? `${value} becomes the root`);
+      step("add", caption ?? say.addRoot(value));
       return s.root;
     },
     addChild(parent, side, value, caption) {
@@ -92,18 +118,18 @@ export function traceTree(input: TreeInput | null = null, caption = ""): TreeTra
       const id = add(value);
       p[side] = id;
       s.current = id;
-      step("add", caption ?? `Add ${value} as the ${side} child of ${p.value}`);
+      step("add", caption ?? say.addChild(value, side, p.value));
       return id;
     },
     focus(id, caption) {
       const n = node(id);
       s.current = id;
-      step("focus", caption ?? `Go to ${n.value}`);
+      step("focus", caption ?? say.focus(n.value));
     },
     visit(id, caption) {
       const n = node(id);
       if (!s.visited.includes(id)) s.visited.push(id);
-      step("visit", caption ?? `Visit ${n.value}`);
+      step("visit", caption ?? say.visit(n.value));
     },
     note(caption) {
       step("note", caption);
@@ -140,10 +166,13 @@ export function treeView(s: TreeState): string {
   for (const [id, at] of pos) {
     const n = s.nodes[id];
     for (const child of [n.left, n.right]) {
-      if (child !== null) edges.push(edgeLine(at, pos.get(child)!, "idle"));
+      if (child === null) continue;
+      // Each edge rides with its child, drawn from the child to the parent, so it moves when the layout shifts.
+      const [cx, cy] = pos.get(child)!;
+      edges.push(`<g data-key="e${child}" transform="translate(${cx} ${cy})">${edgeLine([0, 0], [at[0] - cx, at[1] - cy], "idle")}</g>`);
     }
     const state = id === s.current ? "active" : s.visited.includes(id) ? "marked" : "idle";
-    circles.push(nodeCircle(at, n.value, state));
+    circles.push(nodeCircle(at, n.value, state, { key: `n${id}` }));
   }
 
   const order = s.visited.map((id) => s.nodes[id].value);

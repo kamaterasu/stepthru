@@ -1,5 +1,5 @@
 import { createTrace, type Trace } from "../core/trace.js";
-import { escape, frame } from "./svg.js";
+import { escape, frame, frameSize } from "./svg.js";
 
 /** A cell position: row, then column, both from 0. */
 export type Cell = readonly [row: number, col: number];
@@ -17,8 +17,23 @@ export interface GridState<T = number> {
   colLabels: string[] | null;
 }
 
+/** Default captions, one per hook. Values arrive as their cell text, or "empty" for null. */
+export interface GridCaptions {
+  set(row: number, col: number, value: string): string;
+  look(values: string[]): string;
+  mark(row: number, col: number, name: string): string;
+}
+
+export const GRID_CAPTIONS: GridCaptions = {
+  set: (r, c, v) => `Set ${r},${c} to ${v}`,
+  look: (values) => `Look at ${values.join(", ")}`,
+  mark: (r, c, name) => `${r},${c} is ${name}`,
+};
+
 export interface GridOptions<T> {
   caption?: string;
+  /** Replaces default captions, for example to translate them. */
+  captions?: Partial<GridCaptions>;
   /** Text drawn left of each row, such as the letters of a word in a DP table. */
   rowLabels?: readonly string[];
   /** Text drawn above each column. */
@@ -57,7 +72,8 @@ export function traceGrid<T = number>(
   const cols = cells[0]?.length ?? 0;
   if (rows === 0 || cols === 0) throw new RangeError("traceGrid needs at least one cell");
   if (cells.some((row) => row.length !== cols)) throw new RangeError("every grid row needs the same length");
-  const { caption = "", rowLabels, colLabels, label = String, wall } = typeof options === "string" ? { caption: options } : options;
+  const { caption = "", rowLabels, colLabels, label = String, wall, captions } = typeof options === "string" ? { caption: options } : options;
+  const say: GridCaptions = { ...GRID_CAPTIONS, ...captions };
   if (rowLabels && rowLabels.length !== rows) throw new RangeError(`rowLabels needs ${rows} labels`);
   if (colLabels && colLabels.length !== cols) throw new RangeError(`colLabels needs ${cols} labels`);
 
@@ -86,6 +102,7 @@ export function traceGrid<T = number>(
   return {
     ...t,
     view: (state) => gridView(state, label, wall),
+    size: (state) => gridLayout(state, label),
     rows,
     cols,
     get(r, c) {
@@ -95,16 +112,16 @@ export function traceGrid<T = number>(
     set(r, c, value, caption) {
       check(r, c);
       s.cells[r][c] = value;
-      step("set", [], [[r, c]], caption ?? `Set ${r},${c} to ${text(value)}`);
+      step("set", [], [[r, c]], caption ?? say.set(r, c, text(value)));
     },
     look(list, caption) {
       for (const [r, c] of list) check(r, c);
-      step("look", list.map(([r, c]) => [r, c]), [], caption ?? `Look at ${list.map((cell) => text(s.cells[cell[0]][cell[1]])).join(", ")}`);
+      step("look", list.map(([r, c]) => [r, c]), [], caption ?? say.look(list.map(([lr, lc]) => text(s.cells[lr][lc]))));
     },
     mark(r, c, name, caption) {
       check(r, c);
       s.marks[key([r, c])] = name;
-      step("mark", [[r, c]], [], caption ?? `${r},${c} is ${name}`);
+      step("mark", [[r, c]], [], caption ?? say.mark(r, c, name));
     },
     note(caption) {
       step("note", s.active, s.moved, caption);
@@ -117,6 +134,19 @@ const GAP = 2;
 const CHAR_W = 9;
 const LABEL = 22; // room for row or column labels
 
+function gridGeometry<T>(s: GridState<T>, label: (value: T) => string) {
+  const w = Math.max(CELL, ...s.cells.flat().map((v) => (v === null ? 0 : label(v).length * CHAR_W + 10)));
+  const rows = s.cells.length;
+  const cols = s.cells[0].length;
+  return { w, pitch: w + GAP, left: s.rowLabels ? LABEL : 0, top: s.colLabels ? LABEL : 0, rows, cols };
+}
+
+/** The size gridView draws a state at, without building its markup. */
+function gridLayout<T>(s: GridState<T>, label: (value: T) => string) {
+  const { pitch, left, top, rows, cols } = gridGeometry(s, label);
+  return frameSize({ width: left + cols * pitch - GAP, height: top + rows * pitch - GAP });
+}
+
 const has = (list: readonly Cell[], r: number, c: number) => list.some(([lr, lc]) => lr === r && lc === c);
 
 /** Draws the cells in rows, with row labels on the left and column labels on top. */
@@ -126,12 +156,7 @@ export function gridView<T>(
   wall?: (value: T) => boolean,
 ): string {
   const text = (v: T | null) => (v === null ? "" : label(v));
-  const w = Math.max(CELL, ...s.cells.flat().map((v) => text(v).length * CHAR_W + 10));
-  const pitch = w + GAP;
-  const left = s.rowLabels ? LABEL : 0;
-  const top = s.colLabels ? LABEL : 0;
-  const rows = s.cells.length;
-  const cols = s.cells[0].length;
+  const { w, pitch, left, top, rows, cols } = gridGeometry(s, label);
 
   const parts: string[] = [];
   s.colLabels?.forEach((l, c) =>

@@ -86,9 +86,10 @@ describe("treeView", () => {
   });
   const parse = (svg: string) => new DOMParser().parseFromString(svg, "image/svg+xml").documentElement;
   const circles = (svg: Element) => [...svg.querySelectorAll("circle")];
+  // Nodes are keyed groups placed with a translate, so they can slide as the tree grows.
   const at = (svg: Element, value: string) => {
     const c = circles(svg).find((c) => c.nextElementSibling?.textContent === value)!;
-    return [Number(c.getAttribute("cx")), Number(c.getAttribute("cy"))];
+    return /translate\(([-\d.]+) ([-\d.]+)\)/.exec(c.parentElement!.getAttribute("transform")!)!.slice(1).map(Number);
   };
 
   test("draws an empty tree", () => {
@@ -106,6 +107,13 @@ describe("treeView", () => {
     expect(at(svg, "8")[1]).toBeLessThan(at(svg, "3")[1]);
     expect(at(svg, "3")[1]).toBe(at(svg, "10")[1]);
     expect(at(svg, "6")[1]).toBeGreaterThan(at(svg, "3")[1]);
+  });
+
+  test("nodes and the edges to their parents are keyed by node id, so they slide together", () => {
+    const svg = parse(treeView(state()));
+    const keys = [...svg.querySelectorAll("[data-key]")].map((g) => g.getAttribute("data-key"));
+    expect(keys.filter((k) => k!.startsWith("n"))).toHaveLength(4);
+    expect(keys.filter((k) => k!.startsWith("e"))).toHaveLength(3);
   });
 
   test("current wins over visited, and the rest are idle", () => {

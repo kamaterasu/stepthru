@@ -15,7 +15,8 @@
     "coverage": "vitest run --coverage --coverage.include=src --coverage.reporter=text --coverage.reporter=html --coverage.reporter=json-summary",
     "demo": "npm run build && node scripts/demo.mjs",
     "pages": "node scripts/pages.mjs",
-    "size": "npm run build && node scripts/size.mjs"
+    "size": "npm run build && node scripts/size.mjs",
+    "e2e": "playwright test"
   },
   "keywords": [
     "algorithm",
@@ -41,6 +42,7 @@
   ],
   "license": "MIT",
   "devDependencies": {
+    "@playwright/test": "^1.65.0",
     "@types/node": "^22.20.5",
     "@vitest/coverage-v8": "^5.0.5",
     "happy-dom": "^21.0.4",

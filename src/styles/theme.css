@@ -61,8 +61,9 @@
 }
 /* Shapes redraw every step, so a short fill-in on the ones the step touches stands in for a transition.
    Marked shapes stay marked across steps, so they do not animate or they would flash every step. */
+/* Fades the fill's opacity, not its color: Chromium interpolates a color into color-mix() as garbage (bright yellow). */
 @keyframes stepthru-in {
-  from { fill: var(--stepthru-bg); }
+  from { fill-opacity: 0; }
 }
 .stepthru-figure [data-state="active"],
 .stepthru-figure [data-state="moved"] {
@@ -89,6 +90,18 @@
 }
 .stepthru-figure text,
 .stepthru-figure .stepthru-pointer { fill: var(--stepthru-fg); }
+/* Arrowheads take their edge's color. path.… outranks the generic [data-state] fill above. */
+.stepthru-figure path.stepthru-arrow { fill: var(--stepthru-muted); stroke: none; }
+.stepthru-figure path.stepthru-arrow[data-state="marked"] { fill: var(--stepthru-done); }
+/* Weights and tags sit on lines and circles, with a halo in the background color so lines do not cross the digits. */
+.stepthru-figure .stepthru-weight,
+.stepthru-figure .stepthru-tag {
+  paint-order: stroke;
+  stroke: var(--stepthru-bg);
+  stroke-width: 4px;
+  stroke-linejoin: round;
+}
+.stepthru-figure .stepthru-tag { fill: var(--stepthru-accent); font-weight: 600; }
 
 .stepthru-caption {
   margin: 0;

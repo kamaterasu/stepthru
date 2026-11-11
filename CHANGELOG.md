@@ -1,5 +1,19 @@
 # Changelog
 
+## 0.5.0 (2026-11-11)
+
+- Fix: in Chromium, highlighted shapes flashed bright yellow for a quarter second on every step. The fade now animates opacity, not color.
+- New: translatable captions. Every tracer takes a `captions` option; the English defaults are exported as `ARRAY_CAPTIONS`, `GRAPH_CAPTIONS`, `TREE_CAPTIONS` and `GRID_CAPTIONS`. `traceGraph` and `traceTree` take an options object as their second argument; a string is still the caption.
+- New: weighted and directed graphs. Edges take an optional weight, drawn on the edge, and `directed: true` draws arrows. New `t.weight(u, v)` and `t.tag(id, text)` for short text by a node, such as a distance. Directed graphs with no cycle are drawn in layers. `edgeKey` takes a `directed` flag.
+- New: `heapView` draws an array as a binary heap, a tree above the array, for heapsort and priority queues.
+- New: `link: true` keeps the step in the URL as `#<id>=<step>`, and opening such a link shows that step.
+- New: tree nodes, and the edges to their parents, slide as the tree grows.
+- Faster: `Trace.size(state)` lets `render` size a trace without drawing every step. Arrays and grids have it: `render` on a 17,000-step array trace went from 1.2 s to 70 ms.
+- Rows under a figure, such as a graph's queue, widen to fit long items.
+- New examples and pages: heapsort, Dijkstra's algorithm and topological sort.
+- Browser tests (Playwright) run in CI against the built site.
+- README: using stepthru from a CDN with no build step, and recipes for React, Vue, Svelte and Astro.
+
 ## 0.4.1 (2026-11-11)
 
 - Faster and lighter: `render` no longer keeps every step's markup in memory; it draws each step as it is shown. On a 17,000-step trace memory dropped from about 1 GB to 15 MB, and `render` took a third less time.

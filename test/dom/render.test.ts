@@ -188,6 +188,28 @@ describe("render extras", () => {
     Element.prototype.animate = original;
   });
 
+  test("link opens the step named in the URL and keeps the URL on the current step", () => {
+    vi.useFakeTimers();
+    const t = createTrace(1);
+    for (let i = 2; i <= 5; i++) t.record("add", i);
+    const el = document.createElement("div");
+    el.id = "sort";
+    el.scrollIntoView = vi.fn();
+    history.replaceState(null, "", "#sort=3");
+    const figure = render(t, el, { view, link: true });
+    expect(figure.state.index).toBe(2);
+    expect(el.scrollIntoView).toHaveBeenCalled();
+    figure.next();
+    expect(location.hash).toBe("#sort=4");
+    figure.seek(0);
+    figure.play();
+    vi.advanceTimersByTime(100 * 10);
+    figure.pause();
+    expect(location.hash).toBe(`#sort=${figure.state.index + 1}`); // written once playback stops, not on every tick
+    history.replaceState(null, "", "#");
+    expect(() => render(t, document.createElement("div"), { view, link: true })).toThrow("id");
+  });
+
   test("the speed button cycles speeds and shows the current one", () => {
     const { el, figure } = make();
     const button = el.querySelector<HTMLButtonElement>('[data-action="speed"]')!;
@@ -356,6 +378,17 @@ describe("code, variables, labels and toHTML", () => {
     expect(calls).toBe(50 + 1 + 1); // sizes, the initial markup, the first update
     figure.next();
     expect(calls).toBe(53);
+  });
+
+  test("render sizes steps with the trace's own size when it has one, instead of drawing them", () => {
+    const t = { ...createTrace(1), size: () => [10, 10] as const };
+    for (let i = 2; i <= 50; i++) t.record("add", i);
+    let calls = 0;
+    render(t, document.createElement("div"), { view: (n: number) => (calls++, view(n)) });
+    expect(calls).toBe(52); // options.view overrides the trace's view, so its size cannot be trusted
+    calls = 0;
+    render({ ...t, view: (n: number) => (calls++, view(n)) }, document.createElement("div"));
+    expect(calls).toBe(2); // the initial markup and the first update
   });
 
   test("toHTML needs no DOM and escapes the caption", () => {
