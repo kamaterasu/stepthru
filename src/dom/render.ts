@@ -144,6 +144,32 @@ export function toHTML<S>(trace: Trace<S>, options: RenderOptions<S> = {}): stri
   return figureHTML(prepare(trace, options), true);
 }
 
+// Views key shapes that can move between steps with data-key and place them with a translate.
+const TRANSLATE = /translate\(\s*([-\d.e]+)[\s,]+([-\d.e]+)\s*\)/;
+
+/** Each keyed shape's place, as a CSS transform, by key. */
+function places(root: Element): Map<string, [Element, string]> {
+  const found = new Map<string, [Element, string]>();
+  for (const shape of root.querySelectorAll("[data-key]")) {
+    const m = TRANSLATE.exec(shape.getAttribute("transform") ?? "");
+    if (m) found.set(shape.getAttribute("data-key")!, [shape, `translate(${m[1]}px, ${m[2]}px)`]);
+  }
+  return found;
+}
+
+/** Slides every keyed shape that changed place from where it was in `before`. */
+function slide(root: Element, before: Map<string, [Element, string]>, ms: number) {
+  for (const [key, [shape, to]] of places(root)) {
+    const from = before.get(key)?.[1];
+    if (from && from !== to && typeof shape.animate === "function") {
+      shape.animate([{ transform: from }, { transform: to }], { duration: ms, easing: "ease-in-out" });
+    }
+  }
+}
+
+const reducedMotion = () =>
+  typeof matchMedia === "function" && matchMedia("(prefers-reduced-motion: reduce)").matches;
+
 // The figure mounted on each element, so rendering again into it first tears down the old one.
 const mounted = new WeakMap<HTMLElement, RenderedFigure>();
 
@@ -179,10 +205,15 @@ export function render<S>(trace: Trace<S>, el: HTMLElement, options: RenderOptio
   const codeBox = part<HTMLElement>(".stepthru-code");
   const lines = [...el.querySelectorAll<HTMLElement>(".stepthru-line")];
 
+  let shown = 0;
   const update = ({ index, playing, speed }: PlayerState) => {
     const step = steps[index];
+    // Slide only between neighboring steps; a jump across many steps would only smear.
+    const before = Math.abs(index - shown) === 1 && !reducedMotion() ? places(figure) : null;
     figure.innerHTML = markup[index];
     if (box) fitTo(figure.querySelector("svg")!, sizes[index]!, box);
+    if (before) slide(figure, before, 250 / Math.max(speed, 1));
+    shown = index;
     // Announce only steps the reader moves to; during playback a caption every interval is noise.
     caption.setAttribute("aria-live", playing ? "off" : "polite");
     caption.textContent = step.caption;

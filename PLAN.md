@@ -128,11 +128,18 @@ Phases 0 to 6 are done. Phase 7: README and demo page done, npm `0.1.0` publishe
 - **Phase 5:** node circles, edge lines, the box row under a figure and the outer `<svg>` frame are shared in `src/structures/svg.ts`.
 - **Phase 2:** every step stores a full snapshot (`structuredClone`). Switch to diffs only if long traces get slow.
 
+## Decisions (0.4)
+
+- Array cells are keyed groups placed with a `translate`. `render` reads the old and new `translate` of each key and slides it with the Web Animations API, only between neighboring steps and never under reduced motion. Only arrays use it so far: graph nodes never move, and tree edges would not follow their nodes.
+- Arrays hold numbers, strings or objects. Objects need `compare`; `label` sets a cell's text. Both are options, and a string second argument is still the caption.
+- `traceGrid` covers DP tables and mazes. `null` is an empty cell; `wall` picks values to draw solid.
+- Algorithm pages are generated from `playground/pages.json` by `scripts/pages.mjs`, and a test fails when the committed HTML drifts from it.
+
 ## After v0.1
 
 Ideas, in no order. Each waits for a real post that needs it.
 
 - Weighted and directed graphs, for Dijkstra.
-- Transitions between steps.
-- String and object values in arrays.
+- Slide tree nodes as the tree grows. Edges are lines between node centers, so they would need to move with the nodes.
+- A heap or priority queue, for heapsort and Dijkstra.
 - A real graph layout for graphs that are not tree-like.

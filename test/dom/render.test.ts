@@ -163,6 +163,31 @@ describe("render extras", () => {
     expect(el.tabIndex).toBe(0);
   });
 
+  test("slides keyed shapes that moved, only between neighboring steps", () => {
+    const keyed = (x: number) => `<svg width="100" height="40"><g data-key="a" transform="translate(${x} 0)"></g></svg>`;
+    const t = createTrace(0);
+    t.record("move", 50);
+    t.record("move", 50);
+    t.record("move", 0);
+    const el = document.createElement("div");
+    const animate = vi.fn();
+    const original = Element.prototype.animate;
+    Element.prototype.animate = animate;
+    const figure = render(t, el, { view: keyed });
+    figure.next();
+    expect(animate).toHaveBeenCalledTimes(1);
+    expect(animate.mock.calls[0][0]).toEqual([{ transform: "translate(0px, 0px)" }, { transform: "translate(50px, 0px)" }]);
+    figure.next(); // same place: nothing to slide
+    expect(animate).toHaveBeenCalledTimes(1);
+    figure.seek(0); // a jump: no slide
+    expect(animate).toHaveBeenCalledTimes(1);
+    vi.stubGlobal("matchMedia", () => ({ matches: true }));
+    figure.seek(2);
+    figure.next();
+    expect(animate).toHaveBeenCalledTimes(1);
+    Element.prototype.animate = original;
+  });
+
   test("the speed button cycles speeds and shows the current one", () => {
     const { el, figure } = make();
     const button = el.querySelector<HTMLButtonElement>('[data-action="speed"]')!;

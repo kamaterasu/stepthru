@@ -78,15 +78,46 @@ const t = traceArray([1, 3, 5, 7], "optional first caption");
 | Hook | Records | What it does |
 |---|---|---|
 | `t.length`, `t.get(i)` | no | Read |
-| `t.compare(i, j)` | yes | Highlights both cells. Returns `a[i] - a[j]` |
-| `t.swap(i, j)` | yes | Swaps two values. Moved cells are drawn dashed, so a swap looks different from a compare |
+| `t.compare(i, j)` | yes | Highlights both cells. Returns a negative number, zero or a positive number, like a sort comparator |
+| `t.swap(i, j)` | yes | Swaps two values. Moved cells are drawn dashed and slide to their new place |
+| `t.set(i, value)` | yes | Writes a value, for example when a merge copies values back |
 | `t.mark(i, name)` | yes | Marks a cell, for example `"sorted"` or `"found"` |
 | `t.pointer(name, i)` | yes | Draws a named pointer under a cell |
 | `t.range(name, lo, hi)` | yes | Draws a bracket over `lo..hi` and dims cells outside every range |
-| `t.clear(name)` | yes | Removes the pointer and the range called `name` |
+| `t.list(name, items)` | yes | Draws a row of values under the array, such as a merge buffer. One at a time |
+| `t.clear(name)` | yes | Removes the pointer, the range and the list called `name` |
 | `t.note(caption)` | yes | A step with only a caption |
 
-Values are numbers. An index outside the array throws a `RangeError`.
+Values can be numbers, strings or objects. Numbers and strings compare in their natural order. Objects need a comparator, and can have a label for their cell:
+
+```ts
+const t = traceArray(people, {
+  caption: "Sort by age",
+  compare: (a, b) => a.age - b.age,
+  label: (p) => p.name,
+});
+```
+
+An index outside the array throws a `RangeError`.
+
+## Grids
+
+For dynamic programming tables, mazes and anything else laid out in rows and columns.
+
+```ts
+const t = traceGrid([[0, 1, 2], [1, null, null]], { rowLabels: ["", "a"], colLabels: ["", "b", "c"] });
+const maze = traceGrid(rows, { wall: (v) => v === "#" });
+```
+
+| Hook | Records | What it does |
+|---|---|---|
+| `t.rows`, `t.cols`, `t.get(r, c)` | no | Read. `null` is an empty cell |
+| `t.set(r, c, value)` | yes | Writes a value. The cell is drawn dashed |
+| `t.look(cells)` | yes | Highlights the cells a step reads, such as the neighbors a DP cell depends on |
+| `t.mark(r, c, name)` | yes | Marks a cell, for example `"path"` or `"answer"` |
+| `t.note(caption)` | yes | A step with only a caption |
+
+Cells are `[row, col]`, both from 0. Options: `caption`, `rowLabels`, `colLabels`, `label` for a value's text, and `wall` to draw some values as solid walls.
 
 ## Graphs
 
@@ -135,7 +166,7 @@ player.play();
 - Keyboard, once the figure or a control button has focus: ← → step, space plays or pauses, Home and End jump to the first or last step. Each button's tooltip names its key.
 - The speed button cycles 0.5×, 1×, 2× and 4×.
 - Long code scrolls inside its panel, which keeps the current line in view.
-- Shapes a step touches fade in their color, unless the reader prefers reduced motion.
+- Shapes a step touches fade in their color, and array cells slide when a swap moves them, unless the reader prefers reduced motion. Your own views can slide shapes too: give a group a `data-key` and place it with `transform="translate(x y)"`.
 - Rendering into an element that already holds a figure destroys the old one first.
 - Screen readers hear the caption of each step the reader moves to. During playback captions are not announced, so a step every 800 ms does not flood the reader.
 - Playback pauses when the figure scrolls out of view.
@@ -209,11 +240,14 @@ const view = (s: { name: string }) => `<svg width="80" height="40"><text x="10" 
 
 ## Develop
 
+See [CONTRIBUTING.md](CONTRIBUTING.md), including how to add an algorithm page.
+
 ```sh
 npm install
 npm run play       # playground with every example
 npm run coverage   # tests with a coverage report in coverage/
 npm run demo       # rebuild brand/demo.svg, the animated figure in this README
+npm run pages      # rebuild the algorithm pages from playground/pages.json
 npm test           # unit and acceptance tests
 npm run typecheck
 npm run build

@@ -1,8 +1,8 @@
 // @vitest-environment happy-dom
 import { describe, expect, test } from "vitest";
-import { arrayView, traceArray, type ArrayState } from "../../src/structures/array";
+import { arrayView, traceArray, type ArrayState, type ArrayTrace } from "../../src/structures/array";
 
-const lastStep = (t: ReturnType<typeof traceArray>) => t.steps[t.steps.length - 1];
+const lastStep = <T>(t: ArrayTrace<T>) => t.steps[t.steps.length - 1];
 
 describe("traceArray", () => {
   test("starts with the input and does not change it", () => {
@@ -91,16 +91,62 @@ describe("traceArray", () => {
   });
 });
 
-describe("arrayView", () => {
-  const state = (over: Partial<ArrayState> = {}): ArrayState => ({
-    values: [1, 2, 3],
-    active: [],
-    moved: [],
-    marks: {},
-    pointers: {},
-    ranges: {},
-    ...over,
+describe("traceArray values and buffers", () => {
+  test("compares strings in their natural order", () => {
+    const t = traceArray(["pear", "apple"], "words");
+    expect(t.steps[0].caption).toBe("words");
+    expect(t.compare(0, 1)).toBeGreaterThan(0);
+    expect(lastStep(t).caption).toBe("Compare pear and apple");
   });
+
+  test("objects need a comparator and can have a label", () => {
+    const people = [{ name: "Bo", age: 30 }, { name: "Al", age: 25 }];
+    expect(() => traceArray(people).compare(0, 1)).toThrow(TypeError);
+    const t = traceArray(people, { compare: (a, b) => a.age - b.age, label: (p) => p.name });
+    expect(t.compare(0, 1)).toBe(5);
+    t.swap(0, 1);
+    expect(lastStep(t).caption).toBe("Swap Bo and Al");
+    expect(t.view!(lastStep(t).state)).toContain(">Al</text>");
+  });
+
+  test("set writes a value and marks the cell moved", () => {
+    const t = traceArray([1, 2]);
+    t.set(1, 9);
+    expect(lastStep(t)).toMatchObject({ op: "set", caption: "Set index 1 to 9", state: { values: [1, 9], moved: [1] } });
+  });
+
+  test("list shows values under the array until cleared", () => {
+    const t = traceArray([3, 1]);
+    t.list("merged", [1]);
+    expect(lastStep(t).state.list).toEqual({ name: "merged", items: [1] });
+    expect(t.view!(lastStep(t).state)).toContain("merged: 1");
+    t.clear("merged");
+    expect(lastStep(t).state.list).toBeNull();
+  });
+
+  test("ids follow values through swaps, so views can slide them", () => {
+    const t = traceArray([7, 8, 9]);
+    t.swap(0, 2);
+    expect(lastStep(t).state.ids).toEqual([2, 1, 0]);
+    expect(t.view!(lastStep(t).state)).toContain('<g data-key="2" transform="translate(0 24)">');
+  });
+});
+
+describe("arrayView", () => {
+  const state = (over: Partial<ArrayState> = {}): ArrayState => {
+    const values = over.values ?? [1, 2, 3];
+    return {
+      values,
+      ids: values.map((_, i) => i),
+      active: [],
+      moved: [],
+      marks: {},
+      pointers: {},
+      ranges: {},
+      list: null,
+      ...over,
+    };
+  };
   const parse = (svg: string) => new DOMParser().parseFromString(svg, "image/svg+xml").documentElement;
   const cellStates = (svg: Element) => [...svg.querySelectorAll("rect")].map((r) => r.getAttribute("data-state"));
 

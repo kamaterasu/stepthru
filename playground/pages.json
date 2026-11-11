@@ -1,0 +1,379 @@
+[
+  {
+    "slug": "bubble-sort",
+    "title": "Bubble sort",
+    "group": "Arrays",
+    "description": "See bubble sort run step by step: every compare, swap and sorted mark, driven by real JavaScript code. Time and space cost included.",
+    "lead": "Bubble sort walks the array again and again, compares each pair of neighbors and swaps them when they are out of order. After each pass the largest value left has bubbled to the end.",
+    "steps": [
+      "Compare the first two values. If the left one is larger, swap them.",
+      "Move one step right and repeat until the end of the unsorted part.",
+      "The largest unsorted value is now last. Mark it sorted.",
+      "Repeat with one less value until everything is sorted."
+    ],
+    "facts": [
+      [
+        "Time",
+        "O(n²) compares. With an early exit when a pass makes no swaps, O(n) on sorted input."
+      ],
+      [
+        "Space",
+        "O(1): it sorts in place."
+      ],
+      [
+        "Stable",
+        "Yes: equal values keep their order."
+      ]
+    ],
+    "hooks": [
+      "compare",
+      "swap"
+    ]
+  },
+  {
+    "slug": "insertion-sort",
+    "title": "Insertion sort",
+    "group": "Arrays",
+    "description": "Insertion sort visualized step by step: each value swapped left into the sorted part, driven by real JavaScript code. Time and space cost included.",
+    "lead": "Insertion sort grows a sorted part at the front of the array. It takes the next value and swaps it left past every larger value until it is in order, the way many people sort a hand of cards.",
+    "steps": [
+      "The first value alone is sorted.",
+      "Take the next value.",
+      "While the value to its left is larger, swap them.",
+      "Repeat until every value has been inserted."
+    ],
+    "facts": [
+      [
+        "Time",
+        "O(n²) on average and in the worst case. O(n) on input that is already nearly sorted."
+      ],
+      [
+        "Space",
+        "O(1): it sorts in place."
+      ],
+      [
+        "Stable",
+        "Yes: equal values keep their order."
+      ]
+    ],
+    "hooks": [
+      "compare",
+      "swap"
+    ]
+  },
+  {
+    "slug": "selection-sort",
+    "title": "Selection sort",
+    "group": "Arrays",
+    "description": "Selection sort visualized step by step: the search for the smallest value, then one swap per pass, driven by real JavaScript code.",
+    "lead": "Selection sort finds the smallest value in the unsorted part and swaps it to the front of that part. After each pass the sorted part grows by one.",
+    "steps": [
+      "Point min at the first unsorted value.",
+      "Compare every later value with min. When one is smaller, point min at it.",
+      "Swap the value at min to the front of the unsorted part. It is now sorted.",
+      "Repeat until one value is left."
+    ],
+    "facts": [
+      [
+        "Time",
+        "O(n²) compares in every case, but at most n − 1 swaps."
+      ],
+      [
+        "Space",
+        "O(1): it sorts in place."
+      ],
+      [
+        "Stable",
+        "No: the swap can jump a value past an equal one."
+      ]
+    ],
+    "hooks": [
+      "compare",
+      "pointer"
+    ]
+  },
+  {
+    "slug": "merge-sort",
+    "title": "Merge sort",
+    "group": "Arrays",
+    "description": "Merge sort visualized step by step: halves, compares, the merge buffer and the copy back, driven by real JavaScript code. O(n log n) explained.",
+    "lead": "Merge sort splits the array in halves until each part holds one value, then merges sorted parts back together. A merge only ever compares the front values of two sorted runs.",
+    "steps": [
+      "Split the range at the middle.",
+      "Sort the left half, then the right half, the same way.",
+      "Merge: compare the front values of both halves and move the smaller into a buffer, drawn under the array.",
+      "When one half runs out, add the rest of the other.",
+      "Copy the buffer back over the range."
+    ],
+    "facts": [
+      [
+        "Time",
+        "O(n log n) in every case."
+      ],
+      [
+        "Space",
+        "O(n) for the merge buffer."
+      ],
+      [
+        "Stable",
+        "Yes: on a tie it takes from the left half first."
+      ]
+    ],
+    "hooks": [
+      "compare",
+      "list",
+      "set"
+    ]
+  },
+  {
+    "slug": "quicksort",
+    "title": "Quicksort",
+    "group": "Arrays",
+    "description": "Watch quicksort with the Lomuto partition step by step: pivot, compares, swaps and recursive ranges, driven by real JavaScript code.",
+    "lead": "Quicksort picks a pivot, moves every smaller value to its left, puts the pivot in its final place, then sorts the two sides the same way. This version uses the Lomuto partition with the last value as the pivot.",
+    "steps": [
+      "Take the last value in the range as the pivot.",
+      "Walk the range. Each value smaller than the pivot is swapped into the left part.",
+      "Swap the pivot just after the left part. It is now in its final place.",
+      "Sort the part left of the pivot, then the part right of it."
+    ],
+    "facts": [
+      [
+        "Time",
+        "O(n log n) on average. O(n²) when the pivot is always the smallest or largest, such as sorted input here."
+      ],
+      [
+        "Space",
+        "O(log n) stack on average, O(n) in the worst case."
+      ],
+      [
+        "Stable",
+        "No."
+      ]
+    ],
+    "hooks": [
+      "compare",
+      "swap"
+    ]
+  },
+  {
+    "slug": "binary-search",
+    "title": "Binary search",
+    "group": "Arrays",
+    "description": "Binary search visualized step by step: the search range, the middle pointer and each compare, driven by real JavaScript code. O(log n) explained.",
+    "lead": "Binary search finds a value in a sorted array by looking at the middle and throwing away the half that cannot hold it. Each step halves the range.",
+    "steps": [
+      "Search the whole array: lo is the first index, hi the last.",
+      "Look at the middle index, mid.",
+      "If the value at mid is the target, stop.",
+      "If it is smaller, search right of mid. If larger, search left of mid.",
+      "When lo passes hi, the target is not in the array."
+    ],
+    "facts": [
+      [
+        "Time",
+        "O(log n). Best case O(1) when the middle is the target."
+      ],
+      [
+        "Space",
+        "O(1) for this loop version."
+      ],
+      [
+        "Needs",
+        "A sorted array."
+      ]
+    ],
+    "hooks": [
+      "range",
+      "pointer"
+    ]
+  },
+  {
+    "slug": "breadth-first-search",
+    "title": "Breadth-first search",
+    "group": "Graphs",
+    "description": "Breadth-first search (BFS) visualized step by step: the queue, visited nodes and BFS tree edges, driven by real JavaScript code.",
+    "lead": "Breadth-first search visits a graph in rings: first the start node, then all nodes one edge away, then two edges away, and so on. A queue keeps that order.",
+    "steps": [
+      "Put the start node in the queue and mark it visited.",
+      "Take the node at the front of the queue.",
+      "For each neighbor not yet visited: mark it visited, mark the edge, and add it to the back of the queue.",
+      "Repeat until the queue is empty."
+    ],
+    "facts": [
+      [
+        "Time",
+        "O(V + E): every node and edge is looked at once."
+      ],
+      [
+        "Space",
+        "O(V) for the queue and the visited set."
+      ],
+      [
+        "Finds",
+        "Shortest paths, by edge count, in unweighted graphs."
+      ]
+    ],
+    "hooks": [
+      "visit",
+      "edge"
+    ]
+  },
+  {
+    "slug": "depth-first-search",
+    "title": "Depth-first search",
+    "group": "Graphs",
+    "description": "Depth-first search (DFS) visualized step by step: the call stack, visited nodes and DFS tree edges, driven by real recursive JavaScript code.",
+    "lead": "Depth-first search follows one path as deep as it can, then backs up to the last node with an unvisited neighbor. This version is recursive; the figure draws its call stack.",
+    "steps": [
+      "Visit the start node.",
+      "Go to its first unvisited neighbor and visit it the same way.",
+      "When a node has no unvisited neighbors, return to the node that called it.",
+      "Done when the first call returns."
+    ],
+    "facts": [
+      [
+        "Time",
+        "O(V + E)."
+      ],
+      [
+        "Space",
+        "O(V) for the visited set and the call stack."
+      ],
+      [
+        "Used for",
+        "Cycle checks, topological order, connected parts, mazes."
+      ]
+    ],
+    "hooks": [
+      "visit",
+      "edge"
+    ]
+  },
+  {
+    "slug": "edit-distance",
+    "title": "Edit distance",
+    "group": "Grids",
+    "description": "Edit distance (Levenshtein) visualized step by step: the dynamic programming table filled cell by cell, driven by real JavaScript code.",
+    "lead": "Edit distance, or Levenshtein distance, is the fewest single-letter inserts, deletes and replacements that turn one word into another. Dynamic programming fills a table where each cell solves the problem for two prefixes.",
+    "steps": [
+      "The first column is the cost to delete letters down to nothing; the first row is the cost to insert them.",
+      "For each other cell, compare the two letters.",
+      "If they match, copy the cell up and to the left: no edit needed.",
+      "If not, take 1 plus the cheapest of the cell up-left (replace), above (delete) and left (insert).",
+      "The bottom-right cell is the answer."
+    ],
+    "facts": [
+      [
+        "Time",
+        "O(m·n) for words of length m and n."
+      ],
+      [
+        "Space",
+        "O(m·n) for the table, or O(min(m, n)) keeping only two rows."
+      ],
+      [
+        "Used for",
+        "Spell checkers, diff tools, DNA sequence alignment."
+      ]
+    ],
+    "hooks": [
+      "look",
+      "set"
+    ]
+  },
+  {
+    "slug": "maze-shortest-path",
+    "title": "Shortest path in a maze",
+    "group": "Grids",
+    "description": "Shortest path through a maze with breadth-first search, visualized step by step on a grid, driven by real JavaScript code.",
+    "lead": "Breadth-first search on a grid finds the shortest path through a maze. It reaches cells in order of distance, so the first time it reaches the exit is along a shortest path.",
+    "steps": [
+      "Write 0 in the start cell and put it in a queue.",
+      "Take the cell at the front of the queue.",
+      "For each open neighbor not reached yet: write its distance, remember where it was reached from, and add it to the queue.",
+      "Stop when the exit is reached.",
+      "Walk back from the exit along the cells each one was reached from."
+    ],
+    "facts": [
+      [
+        "Time",
+        "O(rows · cols): each cell is reached once."
+      ],
+      [
+        "Space",
+        "O(rows · cols) for the queue and the distances."
+      ],
+      [
+        "Needs",
+        "Every move to cost the same. With weights, use Dijkstra's algorithm."
+      ]
+    ],
+    "hooks": [
+      "set",
+      "mark"
+    ]
+  },
+  {
+    "slug": "binary-search-tree-insert",
+    "title": "Binary search tree insert",
+    "group": "Trees",
+    "description": "Binary search tree insertion visualized step by step: each compare on the way down and where the new node lands, driven by real JavaScript code.",
+    "lead": "In a binary search tree every node's left subtree holds smaller values and its right subtree holds the rest. To insert, walk down from the root, going left or right after each compare, until you reach an empty spot.",
+    "steps": [
+      "If the tree is empty, the value becomes the root.",
+      "Compare the value with the current node. Smaller goes left, equal or larger goes right.",
+      "If that child is empty, add the value there.",
+      "Otherwise move to that child and compare again."
+    ],
+    "facts": [
+      [
+        "Time",
+        "O(h) per insert, where h is the tree height: O(log n) when balanced, O(n) for sorted input."
+      ],
+      [
+        "Space",
+        "O(1) extra for this loop version."
+      ],
+      [
+        "Note",
+        "Inserting sorted values makes a tree that is a single long path."
+      ]
+    ],
+    "hooks": [
+      "compare",
+      "addChild"
+    ]
+  },
+  {
+    "slug": "in-order-traversal",
+    "title": "In-order traversal",
+    "group": "Trees",
+    "description": "In-order traversal of a binary tree visualized step by step: left subtree, node, right subtree. On a BST it visits values in sorted order.",
+    "lead": "In-order traversal visits a binary tree's left subtree, then the node, then its right subtree. On a binary search tree that order is sorted.",
+    "steps": [
+      "Go to the root.",
+      "Traverse its left subtree in order.",
+      "Visit the node.",
+      "Traverse its right subtree in order."
+    ],
+    "facts": [
+      [
+        "Time",
+        "O(n): every node is visited once."
+      ],
+      [
+        "Space",
+        "O(h) for the recursion, where h is the tree height."
+      ],
+      [
+        "Used for",
+        "Printing a BST in sorted order, checking a tree is a valid BST."
+      ]
+    ],
+    "hooks": [
+      "focus",
+      "visit"
+    ]
+  }
+]

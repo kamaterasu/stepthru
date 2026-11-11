@@ -12,6 +12,17 @@ import { dfs } from "../examples/dfs";
 import dfsSource from "../examples/dfs.ts?raw";
 import { quickSort } from "../examples/quicksort";
 import quickSortSource from "../examples/quicksort.ts?raw";
+import { editDistance } from "../examples/edit-distance";
+import editDistanceSource from "../examples/edit-distance.ts?raw";
+import { insertionSort, insertionSortCode } from "../examples/insertion-sort";
+import insertionSortSource from "../examples/insertion-sort.ts?raw";
+import { mazePath } from "../examples/maze";
+import mazeSource from "../examples/maze.ts?raw";
+import { mergeSort } from "../examples/merge-sort";
+import mergeSortSource from "../examples/merge-sort.ts?raw";
+import { selectionSort, selectionSortCode } from "../examples/selection-sort";
+import selectionSortSource from "../examples/selection-sort.ts?raw";
+import PAGES from "./pages.json";
 
 export interface Figure {
   /** Also the folder of the figure's own page. */
@@ -37,19 +48,24 @@ const tree = {
   right: { value: 10, right: { value: 14, left: { value: 13 } } },
 };
 
-export const FIGURES: Figure[] = [
-  { slug: "bubble-sort", title: "Bubble sort", group: "Arrays", source: bubbleSortSource,
-    mount: mount(() => bubbleSort([5, 2, 8, 1, 9, 3]), { code: bubbleSortCode }) },
-  { slug: "quicksort", title: "Quicksort", group: "Arrays", source: quickSortSource,
-    mount: mount(() => quickSort([7, 2, 9, 4, 1, 8, 3])) },
-  { slug: "binary-search", title: "Binary search", group: "Arrays", source: binarySearchSource,
-    mount: mount(() => binarySearch([1, 3, 5, 7, 9, 11, 13], 9), { code: binarySearchCode }) },
-  { slug: "breadth-first-search", title: "Breadth-first search", group: "Graphs", source: bfsSource,
-    mount: mount(() => bfs(graph, "A")) },
-  { slug: "depth-first-search", title: "Depth-first search", group: "Graphs", source: dfsSource,
-    mount: mount(() => dfs(graph, "A")) },
-  { slug: "binary-search-tree-insert", title: "Binary search tree: insert", group: "Trees", source: bstSource,
-    mount: mount(() => bstInsert([8, 3, 10, 1, 6, 14, 4, 7, 13])) },
-  { slug: "in-order-traversal", title: "In-order traversal", group: "Trees", source: bstSource,
-    mount: mount(() => inOrder(tree)) },
-];
+// Each page's figure, by slug. Titles, groups and order come from pages.json.
+const BY_SLUG: Record<string, Pick<Figure, "source" | "mount">> = {
+  "bubble-sort": { source: bubbleSortSource, mount: mount(() => bubbleSort([5, 2, 8, 1, 9, 3]), { code: bubbleSortCode }) },
+  "insertion-sort": { source: insertionSortSource, mount: mount(() => insertionSort([5, 2, 8, 1, 9, 3]), { code: insertionSortCode }) },
+  "selection-sort": { source: selectionSortSource, mount: mount(() => selectionSort([5, 2, 8, 1, 9, 3]), { code: selectionSortCode }) },
+  "merge-sort": { source: mergeSortSource, mount: mount(() => mergeSort([5, 2, 8, 1, 9, 3, 7])) },
+  quicksort: { source: quickSortSource, mount: mount(() => quickSort([7, 2, 9, 4, 1, 8, 3])) },
+  "binary-search": { source: binarySearchSource, mount: mount(() => binarySearch([1, 3, 5, 7, 9, 11, 13], 9), { code: binarySearchCode }) },
+  "breadth-first-search": { source: bfsSource, mount: mount(() => bfs(graph, "A")) },
+  "depth-first-search": { source: dfsSource, mount: mount(() => dfs(graph, "A")) },
+  "edit-distance": { source: editDistanceSource, mount: mount(() => editDistance("horse", "ros")) },
+  "maze-shortest-path": { source: mazeSource, mount: mount(() => mazePath(["...#.", ".##.#", "...#.", "##...", "...#."])) },
+  "binary-search-tree-insert": { source: bstSource, mount: mount(() => bstInsert([8, 3, 10, 1, 6, 14, 4, 7, 13])) },
+  "in-order-traversal": { source: bstSource, mount: mount(() => inOrder(tree)) },
+};
+
+export const FIGURES: Figure[] = PAGES.map(({ slug, title, group }) => {
+  const figure = BY_SLUG[slug];
+  if (!figure) throw new Error(`pages.json lists ${slug}, but figures.ts has no figure for it`);
+  return { slug, title, group, ...figure };
+});

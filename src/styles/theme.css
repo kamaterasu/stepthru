@@ -76,6 +76,11 @@
   stroke: var(--stepthru-done);
 }
 .stepthru-figure line[data-state="marked"] { stroke-width: 3; }
+/* Walls, such as in a maze: solid, so they differ from open cells by shape as well as color. */
+.stepthru-figure [data-state="wall"] {
+  fill: var(--stepthru-muted);
+  stroke: var(--stepthru-muted);
+}
 .stepthru-figure [data-dim] { opacity: 0.35; }
 .stepthru-figure .stepthru-range {
   fill: none;

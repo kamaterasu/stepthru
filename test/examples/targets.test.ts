@@ -6,20 +6,69 @@ import { binarySearch, binarySearchCode } from "../../examples/binary-search";
 import { bubbleSort, bubbleSortCode } from "../../examples/bubble-sort";
 import { dfs } from "../../examples/dfs";
 import { quickSort } from "../../examples/quicksort";
-import { edgeKey, type ArrayTrace, type GraphInput, type GraphTrace, type TreeState, type TreeTrace } from "../../src/index";
+import { editDistance } from "../../examples/edit-distance";
+import { insertionSort, insertionSortCode } from "../../examples/insertion-sort";
+import { mazePath } from "../../examples/maze";
+import { mergeSort } from "../../examples/merge-sort";
+import { selectionSort, selectionSortCode } from "../../examples/selection-sort";
+import { edgeKey, type ArrayTrace, type GridTrace, type GraphInput, type GraphTrace, type TreeState, type TreeTrace } from "../../src/index";
 
-const final = <T extends ArrayTrace | GraphTrace | TreeTrace>(t: T): T["steps"][number] => t.steps[t.steps.length - 1];
+const final = <T extends ArrayTrace | GraphTrace | TreeTrace | GridTrace<number | "#"> | GridTrace>(t: T): T["steps"][number] => t.steps[t.steps.length - 1];
 const inputs = [[5, 2, 8, 1, 9, 3], [1], [2, 1], [3, 3, 1, 3], [1, 2, 3, 4], [4, 3, 2, 1]];
 
 describe.each([
   ["bubbleSort", bubbleSort],
   ["quickSort", quickSort],
+  ["selectionSort", selectionSort],
 ])("%s", (_, sort) => {
   test.each(inputs)("sorts %j and marks every cell sorted", (...input) => {
     const { state } = final(sort(input));
     expect(state.values).toEqual([...input].sort((a, b) => a - b));
     expect(Object.keys(state.marks)).toHaveLength(input.length);
     expect(state).toMatchObject({ pointers: {}, ranges: {} });
+  });
+});
+
+describe.each([
+  ["insertionSort", insertionSort],
+  ["mergeSort", mergeSort],
+])("%s", (_, sort) => {
+  test.each(inputs)("sorts %j and clears its ranges and list", (...input) => {
+    const { state } = final(sort(input));
+    expect(state.values).toEqual([...input].sort((a, b) => a - b));
+    expect(state).toMatchObject({ pointers: {}, ranges: {}, list: null });
+  });
+});
+
+describe("mergeSort", () => {
+  test("builds the merged run under the array before copying it back", () => {
+    const steps = mergeSort([2, 1]).steps;
+    expect(steps.find((s) => s.op === "list")!.state.list).toEqual({ name: "merged", items: [1] });
+    expect(steps.filter((s) => s.op === "set").map((s) => s.state.values)).toEqual([[1, 1], [1, 2]]);
+  });
+});
+
+describe("editDistance", () => {
+  test.each([["horse", "ros", 3], ["kitten", "sitting", 3], ["abc", "abc", 0], ["", "ab", 2]] as const)(
+    "%s to %s is %i, marked as the answer",
+    (a, b, distance) => {
+      const { state, caption } = final(editDistance(a, b));
+      expect(state.cells[a.length][b.length]).toBe(distance);
+      expect(state.marks).toEqual({ [`${a.length},${b.length}`]: "answer" });
+      expect(caption).toBe(`Edit distance: ${distance}`);
+    },
+  );
+});
+
+describe("mazePath", () => {
+  test("finds the shortest path and marks it from exit to start", () => {
+    const { state, caption } = final(mazePath(["...", "#.#", "..."]));
+    expect(caption).toBe("Shortest path: 4 steps");
+    expect(Object.keys(state.marks).sort()).toEqual(["0,0", "0,1", "1,1", "2,1", "2,2"]);
+  });
+
+  test("says when the exit cannot be reached", () => {
+    expect(final(mazePath([".#", "#."])).caption).toBe("The exit cannot be reached");
   });
 });
 
@@ -104,12 +153,14 @@ describe("binary search tree", () => {
 
 describe("code lines in the examples", () => {
   // Each op must point at a line that does that thing, so the listing and the traced code cannot drift apart.
-  const check = (t: ArrayTrace, code: string, expected: Record<string, string>) => {
+  // An op may happen on more than one line, such as a mark inside the loop and one after it.
+  const check = (t: ArrayTrace, code: string, expected: Record<string, string | string[]>) => {
     const lines = code.split("\n");
     const tagged = t.steps.filter((s) => s.line !== undefined);
     expect(tagged.length).toBeGreaterThan(0);
     for (const step of tagged) {
-      expect(lines[step.line! - 1], `${step.op} at line ${step.line}`).toContain(expected[step.op]);
+      const allowed = [expected[step.op] ?? []].flat();
+      expect(allowed.some((text) => lines[step.line! - 1].includes(text)), `${step.op} at line ${step.line}`).toBe(true);
     }
   };
 
@@ -123,6 +174,20 @@ describe("code lines in the examples", () => {
       pointer: "const mid",
       mark: "a[mid] === target",
       clear: "return -1",
+    });
+  });
+
+  test("insertion sort", () => {
+    check(insertionSort([3, 1, 2]), insertionSortCode, { range: "for (let i = 1", compare: "a[j - 1] > a[j]", swap: "[a[j - 1], a[j]] =", clear: "for (let i = 1" });
+  });
+
+  test("selection sort", () => {
+    check(selectionSort([3, 1, 2]), selectionSortCode, {
+      pointer: "min",
+      compare: "a[j] < a[min]",
+      swap: "[a[i], a[min]] =",
+      mark: ["[a[i], a[min]] =", "for (let i = 0"],
+      clear: "for (let i = 0",
     });
   });
 

@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.4.0 (2026-11-11)
+
+- New: `traceGrid` for dynamic programming tables and mazes: `set`, `look`, `mark`, row and column labels, and wall cells.
+- New: arrays of strings, or of objects with `compare` and `label` options. A string second argument is still the caption.
+- New: `t.set(i, value)` writes a value, and `t.list(name, items)` draws a row under the array, such as a merge buffer. `t.clear(name)` also removes the list.
+- New: array cells slide to their new place on a swap. Off under `prefers-reduced-motion`. Custom views can slide shapes too, with `data-key` and a `translate`.
+- `ArrayState` has `ids` and `list`. `ArrayState`, `ArrayTrace` and `arrayView` take a value type, `number` by default.
+- New examples and pages: insertion sort, selection sort, merge sort, edit distance and shortest path in a maze.
+
 ## 0.3.0 (2026-11-11)
 
 - New: speed button (0.5×, 1×, 2×, 4×) and `player.setSpeed(n)`. `PlayerState` has `speed`. New `speed` label.
