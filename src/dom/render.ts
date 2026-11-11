@@ -109,15 +109,15 @@ function prepare<S>(trace: Trace<S>, { view = trace.view, labels, code }: Render
   }
   return {
     steps,
-    // Draw every step once up front, so the figure can keep the size of its largest step.
-    markup: steps.map((step) => view(step.state)),
+    // Draws a step on demand. Keeping every step's markup would hold megabytes for long traces.
+    draw: (index: number) => view(steps[index].state),
     text: { ...LABELS, ...labels },
     code,
     hasVars: steps.some((step) => step.vars),
   };
 }
 
-function figureHTML({ steps, markup, text, code, hasVars }: ReturnType<typeof prepare>, controlsHidden: boolean) {
+function figureHTML({ steps, draw, text, code, hasVars }: ReturnType<typeof prepare>, controlsHidden: boolean) {
   const [first] = steps;
   const last = steps.length - 1;
   const buttons = BUTTONS.map(
@@ -125,7 +125,7 @@ function figureHTML({ steps, markup, text, code, hasVars }: ReturnType<typeof pr
       `<button type="button" data-action="${action}" aria-label="${escape(text[label])}" aria-keyshortcuts="${key}"`
       + ` title="${escape(withKey(text[label], keyText))}">${ICONS[icon]}</button>`,
   ).join("");
-  return `<div class="stepthru-figure">${markup[0]}</div>`
+  return `<div class="stepthru-figure">${draw(0)}</div>`
     + (hasVars ? `<dl class="stepthru-vars" aria-label="${escape(text.variables)}">${varsItems(first.vars)}</dl>` : "")
     + `<p class="stepthru-caption" aria-live="polite">${escape(first.caption)}</p>`
     + `<div class="stepthru-controls"${controlsHidden ? " hidden" : ""}>${buttons}`
@@ -185,9 +185,10 @@ function scrollWithin(box: HTMLElement, line: HTMLElement) {
 export function render<S>(trace: Trace<S>, el: HTMLElement, options: RenderOptions<S> = {}): RenderedFigure {
   const prepared = prepare(trace, options);
   mounted.get(el)?.destroy();
-  const { steps, markup, text } = prepared;
+  const { steps, draw, text } = prepared;
   const last = steps.length - 1;
-  const sizes = markup.map(svgSize);
+  // Size every step once up front, so the figure can keep the size of its largest step. The markup itself is dropped.
+  const sizes = steps.map((_, i) => svgSize(draw(i)));
   const box = largest(sizes);
 
   el.classList.add("stepthru");
@@ -210,7 +211,7 @@ export function render<S>(trace: Trace<S>, el: HTMLElement, options: RenderOptio
     const step = steps[index];
     // Slide only between neighboring steps; a jump across many steps would only smear.
     const before = Math.abs(index - shown) === 1 && !reducedMotion() ? places(figure) : null;
-    figure.innerHTML = markup[index];
+    figure.innerHTML = draw(index);
     if (box) fitTo(figure.querySelector("svg")!, sizes[index]!, box);
     if (before) slide(figure, before, 250 / Math.max(speed, 1));
     shown = index;

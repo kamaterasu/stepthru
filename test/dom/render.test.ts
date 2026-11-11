@@ -344,6 +344,20 @@ describe("code, variables, labels and toHTML", () => {
     expect(live.querySelector(".stepthru-figure")!.innerHTML).toBe(box.querySelector(".stepthru-figure")!.innerHTML);
   });
 
+  test("toHTML draws only the first step; render keeps no markup, drawing each step it shows", () => {
+    const t = createTrace(1);
+    for (let i = 2; i <= 50; i++) t.record("add", i);
+    let calls = 0;
+    const counted = (n: number) => (calls++, view(n));
+    toHTML(t, { view: counted });
+    expect(calls).toBe(1);
+    calls = 0;
+    const figure = render(t, document.createElement("div"), { view: counted });
+    expect(calls).toBe(50 + 1 + 1); // sizes, the initial markup, the first update
+    figure.next();
+    expect(calls).toBe(53);
+  });
+
   test("toHTML needs no DOM and escapes the caption", () => {
     const t = createTrace(1, "<b>bold</b>");
     expect(toHTML(t, { view })).toContain("&lt;b&gt;bold&lt;/b&gt;");

@@ -5,7 +5,7 @@
 [![npm](https://img.shields.io/npm/v/stepthru)](https://www.npmjs.com/package/stepthru)
 [![CI](https://github.com/kamaterasu/stepthru/actions/workflows/ci.yml/badge.svg)](https://github.com/kamaterasu/stepthru/actions/workflows/ci.yml)
 [![coverage](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fkamaterasu.github.io%2Fstepthru%2Fcoverage%2Fcoverage-summary.json&query=%24.total.lines.pct&suffix=%25&label=coverage)](https://kamaterasu.github.io/stepthru/coverage/)
-[![size](https://img.shields.io/bundlephobia/minzip/stepthru)](https://bundlephobia.com/package/stepthru)
+[![min+gzip](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fkamaterasu.github.io%2Fstepthru%2Fsize.json&query=%24.gzip&label=min%2Bgzip)](https://kamaterasu.github.io/stepthru/size.json)
 ![dependencies](https://img.shields.io/badge/dependencies-0-brightgreen)
 [![license](https://img.shields.io/npm/l/stepthru)](LICENSE)
 
@@ -246,6 +246,7 @@ See [CONTRIBUTING.md](CONTRIBUTING.md), including how to add an algorithm page.
 npm install
 npm run play       # playground with every example
 npm run coverage   # tests with a coverage report in coverage/
+npm run size       # what stepthru adds to a bundle, minified and gzipped
 npm run demo       # rebuild brand/demo.svg, the animated figure in this README
 npm run pages      # rebuild the algorithm pages from playground/pages.json
 npm test           # unit and acceptance tests

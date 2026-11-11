@@ -26,6 +26,8 @@ jobs:
       - run: npm run site
       # After the site build, which empties site/. The page links to this report.
       - run: npm run coverage -- --coverage.reportsDirectory=site/coverage
+      # Bundle size for the README badge, measured here instead of by an outside service.
+      - run: npm run build && node scripts/size.mjs site/size.json
       - uses: actions/upload-pages-artifact@v4
         with:
           path: site

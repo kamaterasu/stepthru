@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.4.1 (2026-11-11)
+
+- Faster and lighter: `render` no longer keeps every step's markup in memory; it draws each step as it is shown. On a 17,000-step trace memory dropped from about 1 GB to 15 MB, and `render` took a third less time.
+- `toHTML` draws only the first step instead of every step: 1.9 s to 0.1 ms on the same trace.
+- The README size badge comes from our own build (`npm run size`) instead of Bundlephobia, which was rate limited.
+
 ## 0.4.0 (2026-11-11)
 
 - New: `traceGrid` for dynamic programming tables and mazes: `set`, `look`, `mark`, row and column labels, and wall cells.
